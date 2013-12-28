@@ -1,15 +1,18 @@
 //./Chapter_9/ch9_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe06/task/OneSecondLongTask.java
-package com.packtpub.java7.concurrency.chapter5.recipe06.task;
 
-import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is the Task used in this example. It does nothing. Only
  * sleeps the thread during 1 second
  *
  */
-public class OneSecondLongTask extends RecursiveAction{
+/* 
+ * XXX
+ * RecursiveAction extends ForJoinTask<Void>
+ * RecursiveTask<V> extends ForkJoinTask<V>
+ */
+
+public static class OneSecondLongTask extends RecursiveAction{
 
 	/**
 	 * Serial Version UID
@@ -24,7 +27,7 @@ public class OneSecondLongTask extends RecursiveAction{
 	protected void compute() {
 		System.out.printf("Task: Starting.\n");
 		try {
-			TimeUnit.SECONDS.sleep(1);
+			TimeUnit.SECONDS.sleep(1); // XXX
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -35,10 +38,7 @@ public class OneSecondLongTask extends RecursiveAction{
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe06/task/AlwaysThrowsExceptionWorkerThread.java
-package com.packtpub.java7.concurrency.chapter5.recipe06.task;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
 
 /**
  * This class implements a worker thread. This is a thread that
@@ -46,7 +46,7 @@ import java.util.concurrent.ForkJoinWorkerThread;
  * 
  * Extends the basic class ForkJoinWorkerThread
  */
-public class AlwaysThrowsExceptionWorkerThread extends ForkJoinWorkerThread {
+public static class AlwaysThrowsExceptionWorkerThread extends ForkJoinWorkerThread {
 
 	/**
 	 * Constructor of the class. Call the constructor of the 
@@ -70,11 +70,7 @@ public class AlwaysThrowsExceptionWorkerThread extends ForkJoinWorkerThread {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe06/task/AlwaysThrowsExceptionWorkerThreadFactory.java
-package com.packtpub.java7.concurrency.chapter5.recipe06.task;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
 
 /**
  * The ForkJoinPool uses a Factory to create its Working Threads.
@@ -84,7 +80,7 @@ import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
  * It implements the interface that every factory has to implement. The
  * ForkJoinWorkerThreadFactory
  */
-public class AlwaysThrowsExceptionWorkerThreadFactory implements ForkJoinWorkerThreadFactory {
+public static class AlwaysThrowsExceptionWorkerThreadFactory implements ForkJoinWorkerThreadFactory {
 
 	/**
 	 * This method creates a new Worker Thread.
@@ -100,9 +96,7 @@ public class AlwaysThrowsExceptionWorkerThreadFactory implements ForkJoinWorkerT
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe06/task/Handler.java
-package com.packtpub.java7.concurrency.chapter5.recipe06.task;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
  * This class manages the exceptions thrown by the worker threads.
@@ -110,7 +104,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * Implements the interface every class of this kind has to implement
  *
  */
-public class Handler implements UncaughtExceptionHandler {
+public static class Handler implements UncaughtExceptionHandler {
 
 	/**
 	 * This method process the uncaught exceptions thrown in a 
@@ -129,20 +123,18 @@ public class Handler implements UncaughtExceptionHandler {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe06/core/Main.java
-package com.packtpub.java7.concurrency.chapter5.recipe06.core;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe06.task.Handler;
-import com.packtpub.java7.concurrency.chapter5.recipe06.task.AlwaysThrowsExceptionWorkerThreadFactory;
-import com.packtpub.java7.concurrency.chapter5.recipe06.task.OneSecondLongTask;
 
 /**
  * Main class of the example
  */
-public class Main {
-
+public static class Main {
+    /* XXX: RecursiveAction:compute - extends ForkJoinTask<Void>
+            ForkJoinPool: 
+            ForkJoinWorkerThread: onStart() - only basic pre-post things are protected/overridable, have to supply factory for the pool
+            ForkJoinWorkerThreadFactory: newThread() - return instance of the subclassed ForkJoinWorkerThread
+            jlt.UncaughtExceptionHandler: void uncaughtException(Thread t, Throwable)
 	/**
 	 * Main method of the example
 	 * @param args
@@ -157,7 +149,9 @@ public class Main {
 		// Creates a Factory
 		AlwaysThrowsExceptionWorkerThreadFactory factory=new AlwaysThrowsExceptionWorkerThreadFactory();
 		// Creates a new ForkJoinPool
-		ForkJoinPool pool=new ForkJoinPool(2,factory,handler,false);
+                // (int parallelism, ForkJoinPool.ForkJoinWorkerThreadFactory factory, Thread.UncaughtExceptionHandler handler, boolean asyncMode)
+                // asyncMode???
+		ForkJoinPool pool=new ForkJoinPool(2,factory,handler,false); 
 		
 		// Execute the task in the pool
 		pool.execute(task);
@@ -180,12 +174,11 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe01/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Sensor2.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class simulates a sensor in the building
  */
-public class Sensor2 implements Runnable {
+public static class Sensor2 implements Runnable {
 
 	/**
 	 * Object with the statistics of the building
@@ -216,12 +209,11 @@ public class Sensor2 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe01/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Sensor1.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class simulates a sensor in the building
  */
-public class Sensor1 implements Runnable {
+public static class Sensor1 implements Runnable {
 
 	/**
 	 * Object with the statistics of the building
@@ -252,9 +244,7 @@ public class Sensor1 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe01/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/BuildStats.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -262,7 +252,7 @@ import java.util.concurrent.TimeUnit;
  * access to a building, controlling the number of people inside the building
  *
  */
-public class BuildStats {
+public static class BuildStats {
 
 	/**
 	 * Number of people inside the building
@@ -325,20 +315,15 @@ public class BuildStats {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe01/src/com/packtpub/java7/concurrency/chapter2/recipe2/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.core;
 
-import java.util.Date;
 
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.BuildStats;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Sensor1;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Sensor2;
 
 /**
  * Main class of the example. Creates an object with the statistics of the
  * building and executes two threads that simulates two sensors in the building
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -375,7 +360,7 @@ public class Main {
 		//Get the actual time and print the execution time
 		Date date2=new Date();
 		stats.printStats();
-		System.out.println("Execution Time: "+((date2.getTime()-date1.getTime())/1000));
+		System.out.println("Execution Time: "+((date2.getTime()-date1.getTime())/1000)); // long getTime() milliseconds
 
 	}
 
@@ -383,16 +368,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe05/src/com/packtpub/java7/concurrency/chapter8/recipe01/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe01.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task used to get information about a Thread. Makes a for loop with 100 steps. In
  * each step, sleeps for 100 milliseconds. Total execution time: 10 seconds
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Main method of the task
@@ -412,17 +395,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe05/src/com/packtpub/java7/concurrency/chapter8/recipe01/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe01.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter8.recipe01.task.Task;
 
 /**
  * Main class of the example. Creates five threads and writes information about them
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -450,6 +430,9 @@ public class Main {
 		/*
 		 * Write threads information
 		 */
+                /*
+                 * Thread.MIN_PRIORITY Thread.MAX_PRIORITY
+                 */
 		for (int j = 0; j < 10; j++) {
 			System.out.printf("Main: Logging threads\n");
 			for (int i = 0; i < threads.length; i++) {
@@ -470,16 +453,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe06/src/com/packtpub/java7/concurrency/chapter8/recipe03/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe03.task;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task used to write information about a Semaphore
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Semaphore shared by all the tasks
@@ -504,7 +484,7 @@ public class Task implements Runnable {
 			/*
 			 * Acquire the semaphore and write a message in the console
 			 */
-			semaphore.acquire();
+			semaphore.acquire(); // XXX
 			System.out.printf("%s: Get the semaphore.\n",Thread.currentThread().getName());
 			/*
 			 * Sleep the thread
@@ -517,26 +497,25 @@ public class Task implements Runnable {
 			/*
 			 * Release the semaphore and write a message
 			 */
-			semaphore.release();			
+			semaphore.release(); // XXX
 		}
 	}
 }
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe06/src/com/packtpub/java7/concurrency/chapter8/recipe03/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe03.core;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter8.recipe03.task.Task;
 
 /**
  * Main class of the example. Create ten threads to execute ten
  * task objects and write information about the semaphore
  *
  */
-public class Main {
+/* XXX - Semaphore: acquire(optional permits)/release(optional permits), get/hasQueuedThreads returns Collection<Thread>, boolean, constructor(permits, fair) */
+/* XXX - don't see getQueuedThreads any longer */
+
+public static class Main {
 
 	/**
 	 * @param args
@@ -594,16 +573,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe04/src/com/packtpub/java7/concurrency/chapter6/recipe03/task/Consumer.java
-package com.packtpub.java7.concurrency.chapter6.recipe03.task;
 
-import java.util.concurrent.LinkedTransferQueue;
 
 /**
  * This class implements a Consumer of Strings. It takes
  * 10000 Strings from the buffer
  *
  */
-public class Consumer implements Runnable {
+public static class Consumer implements Runnable {
 
 	/**
 	 * Buffer to take the Strings
@@ -645,16 +622,14 @@ public class Consumer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe04/src/com/packtpub/java7/concurrency/chapter6/recipe03/task/Producer.java
-package com.packtpub.java7.concurrency.chapter6.recipe03.task;
 
-import java.util.concurrent.LinkedTransferQueue;
 
 /**
  * This class implements a Producer of Strings. It generates
  * 10000 strings and stores them in the buffer.
  *
  */
-public class Producer implements Runnable {
+public static class Producer implements Runnable {
 
 	/**
 	 * Buffer to store the Strings
@@ -692,18 +667,35 @@ public class Producer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe04/src/com/packtpub/java7/concurrency/chapter6/recipe03/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe03.core;
 
-import java.util.concurrent.LinkedTransferQueue;
 
-import com.packtpub.java7.concurrency.chapter6.recipe03.task.Consumer;
-import com.packtpub.java7.concurrency.chapter6.recipe03.task.Producer;
 
 /**
  * Main class of the example. It executes 100 producers and 100 consumers
  *
  */
-public class Main {
+
+/*
+ * XXX TransferQueue is a BlockingQueue in which producers may wait for consumers to
+ * receive elements. A TransferQueue may be useful for example in
+ * message passing applications in which producers sometimes (using
+ * method transfer(E)) await receipt of elements by consumers invoking
+ * take or poll, while at other times enqueue elements (via method
+ * put) without waiting for receipt.
+ *
+ * Like other blocking queues, a TransferQueue MAY BE capacity
+ * bounded. If so, an attempted transfer operation may initially block
+ * waiting for available space, and/or subsequently block waiting for
+ * reception by a consumer. Note that in a queue with zero capacity,
+ * such as SynchronousQueue, put and transfer are effectively
+ * synonymous.
+ *
+ * LinkedTransferQueue is not capacity constrained.
+ *
+ * ThreadPoolExecutor now uses SynchronousQueue.  (how does it deal with capacity??)
+ */
+
+public static class Main {
 
 	/**
 	 * @param args
@@ -767,10 +759,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe02/src/com/packtpub/java7/concurrency/chapter4/recipe4/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe4.task;
 
-import java.util.List;
-import java.util.concurrent.FutureTask;
 
 /**
  * This class encapsulates a FileSearch object. The objective
@@ -778,7 +767,8 @@ import java.util.concurrent.FutureTask;
  * as it was a Callable object 
  *
  */
-public class Task extends FutureTask<List<String>> {
+// FutureTask implments RunnableFuture interface which extends Runnable and Future<V>, Future is isDone, cancel, V get(opt timeout), isCancelled()
+public static class Task extends FutureTask<List<String>> { 
 
 	private FileSearch fileSearch;
 	
@@ -797,6 +787,13 @@ public class Task extends FutureTask<List<String>> {
 	 * method establish the null value as result. We change this behavior returning
 	 * the result list generated by the FileSearch task
 	 */
+        /* XXX FutureTask internally calls set(V v) after the runnable/callable call completes.  This override, replaces it with
+         * results obtained from FileSearch
+         *
+         * FutureTask constructor transforms this Runnable into Callable (Executors.callable(Runnable r, V result))  Result here is result
+         * to return on successful completion.  Here the Task constructor (which calls the super(FutureTask) construcotr, simply passes
+         * null
+         */
 	protected void set(List<String> v) {
 		if (v==null) {
 			v=fileSearch.getResults();
@@ -807,16 +804,12 @@ public class Task extends FutureTask<List<String>> {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe02/src/com/packtpub/java7/concurrency/chapter4/recipe4/task/FileSearch.java
-package com.packtpub.java7.concurrency.chapter4.recipe4.task;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class search for files with an extension in a directory
  */
-public class FileSearch implements Runnable {
+public static class FileSearch implements Runnable {
 
 	/**
 	 * Initial path for the search
@@ -838,7 +831,6 @@ public class FileSearch implements Runnable {
 	 * Constructor of the class. Initializes its attributes
 	 * @param initPath Initial path for the search
 	 * @param end Extension of the files we are searching for
-	 * @param phaser Phaser object to control the execution
 	 */
 	public FileSearch(String initPath, String end) {
 		this.initPath = initPath;
@@ -908,29 +900,33 @@ public class FileSearch implements Runnable {
 
 //=*=*=*=*
 //./Chapter_9/ch9_recipe02/src/com/packtpub/java7/concurrency/chapter4/recipe4/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe4.core;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter4.recipe4.task.FileSearch;
-import com.packtpub.java7.concurrency.chapter4.recipe4.task.Task;
 
 /**
  * Main class of the example. Create three FileSearch objects, encapsulate inside
  * three Task objects and execute them as they were callable objects
  *
  */
-public class Main {
+
+/*
+ * When tasks are submitted,
+ *
+ * 	If the thread pool has not reached the core size, it creates new threads.
+ *	If the core size has been reached and there is no idle threads, it queues tasks.
+ *	If the core size has been reached, there is no idle threads, and the queue becomes full, it creates new threads (until it reaches the max size).
+ *	If the max size has been reached, there is no idle threads, and the queue becomes full, the rejection policy kicks in.
+ *
+ */
+
+public static class Main {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// Create a new Executor
-		ThreadPoolExecutor executor=(ThreadPoolExecutor)Executors.newCachedThreadPool();
+		ThreadPoolExecutor executor=(ThreadPoolExecutor)Executors.newCachedThreadPool(); // XXX returns ExecutorService cast needed
 
 		// Create three FileSearch objects
 		FileSearch system=new FileSearch("C:\\Windows", "log");
@@ -972,13 +968,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe2/src/com/packtpub/java7/concurrency/chapter3/recipe2/task/Job.java
-package com.packtpub.java7.concurrency.chapter3.recipe2.task;
 
 /**
  * This class simulates a job that send a document to print.
  *
  */
-public class Job implements Runnable {
+public static class Job implements Runnable {
 
 	/**
 	 * Queue to print the documents
@@ -1007,12 +1002,7 @@ public class Job implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe2/src/com/packtpub/java7/concurrency/chapter3/recipe2/task/PrintQueue.java
-package com.packtpub.java7.concurrency.chapter3.recipe2.task;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class implements a PrintQueue that have access to three printers.
@@ -1023,7 +1013,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * is free.
  *
  */
-public class PrintQueue {
+public static class PrintQueue {
 	
 	/**
 	 * Semaphore to control the access to the printers
@@ -1102,16 +1092,13 @@ public class PrintQueue {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe2/src/com/packtpub/java7/concurrency/chapter3/recipe2/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe2.core;
 
-import com.packtpub.java7.concurrency.chapter3.recipe2.task.Job;
-import com.packtpub.java7.concurrency.chapter3.recipe2.task.PrintQueue;
 
 /**
  * Main class of the example.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class. Run ten jobs in parallel that
@@ -1138,9 +1125,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe3/src/com/packtpub/java7/concurrency/chapter3/recipe3/task/Videoconference.java
-package com.packtpub.java7.concurrency.chapter3.recipe3.task;
 
-import java.util.concurrent.CountDownLatch;
 
 /**
  * This class implements the controller of the Videoconference
@@ -1149,7 +1134,7 @@ import java.util.concurrent.CountDownLatch;
  * participants in the conference.
  *
  */
-public class Videoconference implements Runnable{
+public static class Videoconference implements Runnable{
 
 	/**
 	 * This class uses a CountDownLatch to control the arrivel of all
@@ -1173,7 +1158,7 @@ public class Videoconference implements Runnable{
 		System.out.printf("%s has arrived.\n",name);
 		// This method uses the countDown method to decrement the internal counter of the
 		// CountDownLatch
-		controller.countDown();
+		controller.countDown(); // XXX
 		System.out.printf("VideoConference: Waiting for %d participants.\n",controller.getCount());
 	}
 	
@@ -1200,15 +1185,13 @@ public class Videoconference implements Runnable{
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe3/src/com/packtpub/java7/concurrency/chapter3/recipe3/task/Participant.java
-package com.packtpub.java7.concurrency.chapter3.recipe3.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a participant in the VideoConference
  *
  */
-public class Participant implements Runnable {
+public static class Participant implements Runnable {
 
 	/**
 	 * VideoConference in which this participant will take part off
@@ -1241,24 +1224,21 @@ public class Participant implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}	
-		conference.arrive(name);
-
+		conference.arrive(name); // XXX calls latch.countDown()
+                /* XXX Can call await() here too */
 	}
 }
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe3/src/com/packtpub/java7/concurrency/chapter3/recipe3/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe3.core;
 
-import com.packtpub.java7.concurrency.chapter3.recipe3.task.Participant;
-import com.packtpub.java7.concurrency.chapter3.recipe3.task.Videoconference;
 
 /**
  * Main class of the example. Create, initialize and execute all the objects
  * necessaries for the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -1285,19 +1265,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe4/src/com/packtpub/java7/concurrency/chapter3/recipe4/task/Searcher.java
-package com.packtpub.java7.concurrency.chapter3.recipe4.task;
 
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
-import com.packtpub.java7.concurrency.chapter3.recipe4.utils.MatrixMock;
-import com.packtpub.java7.concurrency.chapter3.recipe4.utils.Results;
 
 /**
  * Class that search for a number in a set of rows of the bi-dimensional array
  *
  */
-public class Searcher implements Runnable {
+public static class Searcher implements Runnable {
 
 	/**
 	 * First row where look for
@@ -1367,7 +1342,7 @@ public class Searcher implements Runnable {
 		}
 		System.out.printf("%s: Lines processed.\n",Thread.currentThread().getName());		
 		try {
-			barrier.await();
+			barrier.await(); // XXX barrier.await() wrapped in InterruptedE and BBE
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (BrokenBarrierException e) {
@@ -1379,9 +1354,7 @@ public class Searcher implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe4/src/com/packtpub/java7/concurrency/chapter3/recipe4/task/Grouper.java
-package com.packtpub.java7.concurrency.chapter3.recipe4.task;
 
-import com.packtpub.java7.concurrency.chapter3.recipe4.utils.Results;
 
 
 /**
@@ -1389,7 +1362,7 @@ import com.packtpub.java7.concurrency.chapter3.recipe4.utils.Results;
  * An object of this class is executed automatically by the CyclicBarrier when
  * all the Searchers finish its job
  */
-public class Grouper implements Runnable {
+public static class Grouper implements Runnable {
 
 	/**
 	 * Results object with the occurrences of the number in each row
@@ -1422,20 +1395,14 @@ public class Grouper implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe4/src/com/packtpub/java7/concurrency/chapter3/recipe4/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe4.core;
 
-import java.util.concurrent.CyclicBarrier;
 
-import com.packtpub.java7.concurrency.chapter3.recipe4.task.Grouper;
-import com.packtpub.java7.concurrency.chapter3.recipe4.task.Searcher;
-import com.packtpub.java7.concurrency.chapter3.recipe4.utils.MatrixMock;
-import com.packtpub.java7.concurrency.chapter3.recipe4.utils.Results;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -1454,6 +1421,7 @@ public class Main {
 		final int SEARCH=5; 
 		final int PARTICIPANTS=5;
 		final int LINES_PARTICIPANT=2000;
+                final int MAX_ITER = 11;
 		MatrixMock mock=new MatrixMock(ROWS, NUMBERS,SEARCH);
 		
 		// Initializes the object for the results
@@ -1468,26 +1436,27 @@ public class Main {
 		
 		// Creates, initializes and starts 5 Searcher objects
 		Searcher searchers[]=new Searcher[PARTICIPANTS];
-		for (int i=0; i<PARTICIPANTS; i++){
+                for (int iteration = 0; iteration < MAX_ITER; ++iteration) {
+                    for (int i=0; i<PARTICIPANTS; i++){
 			searchers[i]=new Searcher(i*LINES_PARTICIPANT, (i*LINES_PARTICIPANT)+LINES_PARTICIPANT, mock, results, 5,barrier);
 			Thread thread=new Thread(searchers[i]);
 			thread.start();
-		}
-		System.out.printf("Main: The main thread has finished.\n");
+                    }
+                    System.out.printf("Main: The main thread, iteration " + iteration + " has finished.\n");
+                }
 	}
 
 }
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe4/src/com/packtpub/java7/concurrency/chapter3/recipe4/utils/Results.java
-package com.packtpub.java7.concurrency.chapter3.recipe4.utils;
 
 /**
  * This class is used to store the number of occurrences of the number
  * we are looking for in each row of the bi-dimensional array
  *
  */
-public class Results {
+public static class Results {
 	
 	/**
 	 * Array to store the number of occurrences of the number in each row of the array
@@ -1522,15 +1491,13 @@ public class Results {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe4/src/com/packtpub/java7/concurrency/chapter3/recipe4/utils/MatrixMock.java
-package com.packtpub.java7.concurrency.chapter3.recipe4.utils;
 
-import java.util.Random;
 
 /**
  * This class generates a random matrix of integer numbers between 1 and 10
  *
  */
-public class MatrixMock {
+public static class MatrixMock {
 	
 	/**
 	 * Bi-dimensional array with the random numbers
@@ -1548,7 +1515,7 @@ public class MatrixMock {
 	public MatrixMock(int size, int length, int number){
 
 		int counter=0;
-		data=new int[size][length];
+		data=new int[size][length]; // XXX
 		Random random=new Random();
 		for (int i=0; i<size; i++) {
 			for (int j=0; j<length; j++){
@@ -1577,13 +1544,12 @@ public class MatrixMock {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe1/src/com/packtpub/java7/concurrency/chapter3/recipe1/task/Job.java
-package com.packtpub.java7.concurrency.chapter3.recipe1.task;
 
 /**
  * This class simulates a job that send a document to print.
  *
  */
-public class Job implements Runnable {
+public static class Job implements Runnable {
 
 	/**
 	 * Queue to print the documents
@@ -1612,17 +1578,14 @@ public class Job implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe1/src/com/packtpub/java7/concurrency/chapter3/recipe1/task/PrintQueue.java
-package com.packtpub.java7.concurrency.chapter3.recipe1.task;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the PrintQueue using a Semaphore to control the
  * access to it. 
  *
  */
-public class PrintQueue {
+public static class PrintQueue {
 	
 	/**
 	 * Semaphore to control the access to the queue
@@ -1663,16 +1626,13 @@ public class PrintQueue {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe1/src/com/packtpub/java7/concurrency/chapter3/recipe1/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe1.core;
 
-import com.packtpub.java7.concurrency.chapter3.recipe1.task.Job;
-import com.packtpub.java7.concurrency.chapter3.recipe1.task.PrintQueue;
 
 /**
  * Main class of the example.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class. Run ten jobs in parallel that
@@ -1699,16 +1659,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe7/src/com/packtpub/java7/concurrency/chapter3/recipe7/task/Consumer.java
-package com.packtpub.java7.concurrency.chapter3.recipe7.task;
 
-import java.util.List;
-import java.util.concurrent.Exchanger;
 
 /**
  * This class implements the consumer of the example
  *
  */
-public class Consumer implements Runnable {
+public static class Consumer implements Runnable {
 
 	/**
 	 * Buffer to save the events produced
@@ -1744,7 +1701,7 @@ public class Consumer implements Runnable {
 
 			try {
 				// Wait for the produced data and send the empty buffer to the producer
-				buffer=exchanger.exchange(buffer);
+				buffer=exchanger.exchange(buffer); // XXX
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -1766,16 +1723,13 @@ public class Consumer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe7/src/com/packtpub/java7/concurrency/chapter3/recipe7/task/Producer.java
-package com.packtpub.java7.concurrency.chapter3.recipe7.task;
 
-import java.util.List;
-import java.util.concurrent.Exchanger;
 
 /**
  * This class implements the producer
  *
  */
-public class Producer implements Runnable {
+public static class Producer implements Runnable {
 
 	/**
 	 * Buffer to save the events produced
@@ -1838,20 +1792,14 @@ public class Producer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe7/src/com/packtpub/java7/concurrency/chapter3/recipe7/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe7.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Exchanger;
 
-import com.packtpub.java7.concurrency.chapter3.recipe7.task.Consumer;
-import com.packtpub.java7.concurrency.chapter3.recipe7.task.Producer;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -1864,7 +1812,7 @@ public class Main {
 		List<String> buffer2=new ArrayList<>();
 		
 		// Creates the exchanger
-		Exchanger<List<String>> exchanger=new Exchanger<>();
+		Exchanger<List<String>> exchanger=new Exchanger<>(); // XXX exchanger.exchange() returns exchanged data, new Exchanger<List<String>>() also ok
 		
 		// Creates the producer
 		Producer producer=new Producer(buffer1, exchanger);
@@ -1884,16 +1832,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe6/src/com/packtpub/java7/concurrency/chapter3/recipe6/task/MyPhaser.java
-package com.packtpub.java7.concurrency.chapter3.recipe6.task;
 
-import java.util.concurrent.Phaser;
 
 /**
  * Implements a subclass of the Phaser class. Overrides the onAdvance method to control
  * the change of phase 
  *
  */
-public class MyPhaser extends Phaser {
+public static class MyPhaser extends Phaser {
 
 	/**
 	 * This method is called when the last register thread calls one of the advance methods
@@ -1903,7 +1849,7 @@ public class MyPhaser extends Phaser {
 	 * @return false to advance the phase, true to finish
 	 */
 	@Override
-	protected boolean onAdvance(int phase, int registeredParties) {
+	protected boolean onAdvance(int phase, int registeredParties) { // XXX onAdvance(int phase, int registeredParties)
 		switch (phase) {
 		case 0:
 			return studentsArrived();
@@ -1920,7 +1866,7 @@ public class MyPhaser extends Phaser {
 
 	/**
 	 * This method is called in the change from phase 0 to phase 1
-	 * @return false to continue with the execution
+	 * @return false to continue with the execution XXX
 	 */
 	private boolean studentsArrived() {
 		System.out.printf("Phaser: The exam are going to start. The students are ready.\n");
@@ -1962,17 +1908,13 @@ public class MyPhaser extends Phaser {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe6/src/com/packtpub/java7/concurrency/chapter3/recipe6/task/Student.java
-package com.packtpub.java7.concurrency.chapter3.recipe6.task;
 
-import java.util.Date;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements an student in the exam 
  *
  */
-public class Student implements Runnable {
+public static class Student implements Runnable {
 
 	/**
 	 * Phaser to control the execution
@@ -1993,19 +1935,19 @@ public class Student implements Runnable {
 	 */
 	public void run() {
 		System.out.printf("%s: Has arrived to do the exam. %s\n",Thread.currentThread().getName(),new Date());
-		phaser.arriveAndAwaitAdvance();
+		phaser.arriveAndAwaitAdvance(); // XXX
 		System.out.printf("%s: Is going to do the first exercise. %s\n",Thread.currentThread().getName(),new Date());
 		doExercise1();
 		System.out.printf("%s: Has done the first exercise. %s\n",Thread.currentThread().getName(),new Date());
-		phaser.arriveAndAwaitAdvance();
+		phaser.arriveAndAwaitAdvance(); // XXX
 		System.out.printf("%s: Is going to do the second exercise. %s\n",Thread.currentThread().getName(),new Date());
 		doExercise2();
 		System.out.printf("%s: Has done the second exercise. %s\n",Thread.currentThread().getName(),new Date());
-		phaser.arriveAndAwaitAdvance();
+		phaser.arriveAndAwaitAdvance(); // XXX
 		System.out.printf("%s: Is going to do the third exercise. %s\n",Thread.currentThread().getName(),new Date());
 		doExercise3();
 		System.out.printf("%s: Has finished the exam. %s\n",Thread.currentThread().getName(),new Date());
-		phaser.arriveAndAwaitAdvance();
+		phaser.arriveAndAwaitAdvance(); // XXX
 	}
 
 	/**
@@ -2049,16 +1991,13 @@ public class Student implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe6/src/com/packtpub/java7/concurrency/chapter3/recipe6/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe6.core;
 
-import com.packtpub.java7.concurrency.chapter3.recipe6.task.MyPhaser;
-import com.packtpub.java7.concurrency.chapter3.recipe6.task.Student;
 
 /**
  * Main class of the example 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -2067,13 +2006,13 @@ public class Main {
 	public static void main(String[] args) {
 		
 		// Creates the Phaser
-		MyPhaser phaser=new MyPhaser();
+		MyPhaser phaser=new MyPhaser(); // XXX
 		
 		// Creates 5 students and register them in the phaser
 		Student students[]=new Student[5];
 		for (int i=0; i<students.length; i++){
 			students[i]=new Student(phaser);
-			phaser.register();
+			phaser.register(); // XXX this increments the count of participants
 		}
 		
 		// Create 5 threads for the students and start them
@@ -2101,19 +2040,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe5/src/com/packtpub/java7/concurrency/chapter3/recipe5/task/FileSearch.java
-package com.packtpub.java7.concurrency.chapter3.recipe5.task;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class search for files with an extension in a directory
  */
-public class FileSearch implements Runnable {
+public static class FileSearch implements Runnable {
 
 	/**
 	 * Initial path for the search
@@ -2160,13 +2092,13 @@ public class FileSearch implements Runnable {
 	public void run() {
 		
 		// Waits for the creation of all the FileSearch objects
-		phaser.arriveAndAwaitAdvance();
+		phaser.arriveAndAwaitAdvance(); // XXX
 		
 		System.out.printf("%s: Starting.\n",Thread.currentThread().getName());
 		
 		// 1st Phase: Look for the files
-		File file = new File(initPath);
-		if (file.isDirectory()) {
+		File file = new File(initPath); // XXX
+		if (file.isDirectory()) {       // XXX
 			directoryProcess(file);
 		}
 		
@@ -2185,7 +2117,7 @@ public class FileSearch implements Runnable {
 		
 		// 3rd Phase: Show info
 		showInfo();
-		phaser.arriveAndDeregister();
+		phaser.arriveAndDeregister(); // XXX Deregister
 		System.out.printf("%s: Work completed.\n",Thread.currentThread().getName());
 
 	}
@@ -2212,12 +2144,12 @@ public class FileSearch implements Runnable {
 			System.out.printf("%s: Phase %d: 0 results.\n",Thread.currentThread().getName(),phaser.getPhase());
 			System.out.printf("%s: Phase %d: End.\n",Thread.currentThread().getName(),phaser.getPhase());
 			// No results. Phase is completed but no more work to do. Deregister for the phaser
-			phaser.arriveAndDeregister();
+			phaser.arriveAndDeregister(); // XXX Dregister
 			return false;
 		} else {
 			// There are results. Phase is completed. Wait to continue with the next phase
 			System.out.printf("%s: Phase %d: %d results.\n",Thread.currentThread().getName(),phaser.getPhase(),results.size());
-			phaser.arriveAndAwaitAdvance();
+			phaser.arriveAndAwaitAdvance(); // XXX
 			return true;
 		}		
 	}
@@ -2230,9 +2162,9 @@ public class FileSearch implements Runnable {
 		long actualDate=new Date().getTime();
 		for (int i=0; i<results.size(); i++){
 			File file=new File(results.get(i));
-			long fileDate=file.lastModified();
+			long fileDate=file.lastModified(); // XXX
 			
-			if (actualDate-fileDate<TimeUnit.MILLISECONDS.convert(1,TimeUnit.DAYS)){
+			if (actualDate-fileDate<TimeUnit.MILLISECONDS.convert(1,TimeUnit.DAYS)){ // XXX
 				newResults.add(results.get(i));
 			}
 		}
@@ -2248,10 +2180,10 @@ public class FileSearch implements Runnable {
 	private void directoryProcess(File file) {
 
 		// Get the content of the directory
-		File list[] = file.listFiles();
+		File list[] = file.listFiles(); // XXX
 		if (list != null) {
 			for (int i = 0; i < list.length; i++) {
-				if (list[i].isDirectory()) {
+				if (list[i].isDirectory()) { // XXX
 					// If is a directory, process it
 					directoryProcess(list[i]);
 				} else {
@@ -2278,17 +2210,14 @@ public class FileSearch implements Runnable {
 
 //=*=*=*=*
 //./Chapter_3/ch3_recipe5/src/com/packtpub/java7/concurrency/chapter3/recipe5/core/Main.java
-package com.packtpub.java7.concurrency.chapter3.recipe5.core;
 
-import java.util.concurrent.Phaser;
 
-import com.packtpub.java7.concurrency.chapter3.recipe5.task.FileSearch;
 
 /**
  * Main class of the example
- *
+
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -2305,7 +2234,7 @@ public class Main {
 		FileSearch documents=new FileSearch("C:\\Documents And Settings","log",phaser);
 		
 		// Creates a thread to run the system FileSearch and starts it
-		Thread systemThread=new Thread(system,"System");
+		Thread systemThread=new Thread(system,"System"); // XXX new Thread(Runnable, "Name")
 		systemThread.start();
 		
 		// Creates a thread to run the apps FileSearch and starts it
@@ -2331,12 +2260,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe02/src/com/packtpub/java7/concurrency/chapter5/recipe02/task/DocumentTask.java
-package com.packtpub.java7.concurrency.chapter5.recipe02.task;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RecursiveTask;
 
 /**
  * Task that will process part of the document and calculate the number of 
@@ -2346,7 +2270,7 @@ import java.util.concurrent.RecursiveTask;
  * In other case, it throws LineTasks to process the lines of the block
  *
  */
-public class DocumentTask extends RecursiveTask<Integer> {
+public static class DocumentTask extends RecursiveTask<Integer> {
 
 	/**
 	 * Serial Version of the class. You have to include it because
@@ -2389,8 +2313,8 @@ public class DocumentTask extends RecursiveTask<Integer> {
 	 * two process them.
 	 * In other case, it throws LineTask tasks to process each line of its block
 	 */
-	@Override
-	protected Integer compute() {
+	@Override                     // XXX
+	protected Integer compute() { // XXX return RecursiveTask type parameter
 		Integer result=null;
 		if (end-start<10){
 			result=processLines(document, start,end,word);
@@ -2398,9 +2322,9 @@ public class DocumentTask extends RecursiveTask<Integer> {
 			int mid=(start+end)/2;
 			DocumentTask task1=new DocumentTask(document,start,mid,word);
 			DocumentTask task2=new DocumentTask(document,mid,end,word);
-			invokeAll(task1,task2);
+			invokeAll(task1,task2); // XXX from RecursiveTask
 			try {
-				result=groupResults(task1.get(),task2.get());
+				result=groupResults(task1.get(),task2.get()); // <RecursiveTask>.get() returns type parameter of RecursiveTask<T>
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
@@ -2424,13 +2348,13 @@ public class DocumentTask extends RecursiveTask<Integer> {
 			LineTask task=new LineTask(document[i], 0, document[i].length, word);
 			tasks.add(task);
 		}
-		invokeAll(tasks);
+		invokeAll(tasks); // XXX from RecursiveTask
 		
 		int result=0;
 		for (int i=0; i<tasks.size(); i++) {
 			LineTask task=tasks.get(i);
 			try {
-				result=result+task.get();
+				result=result+task.get(); // XXX .get()
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
@@ -2456,11 +2380,7 @@ public class DocumentTask extends RecursiveTask<Integer> {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe02/src/com/packtpub/java7/concurrency/chapter5/recipe02/task/LineTask.java
-package com.packtpub.java7.concurrency.chapter5.recipe02.task;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -2472,7 +2392,7 @@ import java.util.concurrent.TimeUnit;
  * to process.
  *
  */
-public class LineTask extends RecursiveTask<Integer>{
+public static class LineTask extends RecursiveTask<Integer>{
 
 	/**
 	 * Serial Version of the class. You have to add it because the
@@ -2524,7 +2444,7 @@ public class LineTask extends RecursiveTask<Integer>{
 			int mid=(start+end)/2;
 			LineTask task1=new LineTask(line, start, mid, word);
 			LineTask task2=new LineTask(line, mid, end, word);
-			invokeAll(task1, task2);
+			invokeAll(task1, task2); // XXX synchronous??
 			try {
 				result=groupResults(task1.get(),task2.get());
 			} catch (InterruptedException | ExecutionException e) {
@@ -2564,7 +2484,7 @@ public class LineTask extends RecursiveTask<Integer>{
 			}
 		}
 		try {
-			TimeUnit.MILLISECONDS.sleep(10);
+			TimeUnit.MILLISECONDS.sleep(10); // XXX
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -2577,19 +2497,13 @@ public class LineTask extends RecursiveTask<Integer>{
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe02/src/com/packtpub/java7/concurrency/chapter5/recipe02/core/Main.java
-package com.packtpub.java7.concurrency.chapter5.recipe02.core;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe02.task.DocumentTask;
-import com.packtpub.java7.concurrency.chapter5.recipe02.utils.DocumentMock;
 
 /**
  * Main class of the example. 
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class
@@ -2602,20 +2516,20 @@ public class Main {
 	
 		// Create a DocumentTask
 		DocumentTask task=new DocumentTask(document, 0, 100, "the");
-		
+                
 		// Create a ForkJoinPool
-		ForkJoinPool pool=new ForkJoinPool();
+		ForkJoinPool pool=new ForkJoinPool(); // XXX
 		
 		// Execute the Task
-		pool.execute(task);
+		pool.execute(task); // XXX
 		
 		// Write statistics about the pool
 		do {
 			System.out.printf("******************************************\n");
-			System.out.printf("Main: Parallelism: %d\n",pool.getParallelism());
-			System.out.printf("Main: Active Threads: %d\n",pool.getActiveThreadCount());
-			System.out.printf("Main: Task Count: %d\n",pool.getQueuedTaskCount());
-			System.out.printf("Main: Steal Count: %d\n",pool.getStealCount());
+			System.out.printf("Main: Parallelism: %d\n",pool.getParallelism()); // XXX
+			System.out.printf("Main: Active Threads: %d\n",pool.getActiveThreadCount()); // XXX
+			System.out.printf("Main: Task Count: %d\n",pool.getQueuedTaskCount()); // XXX
+			System.out.printf("Main: Steal Count: %d\n",pool.getStealCount()); // XXX
 			System.out.printf("******************************************\n");
 
 			try {
@@ -2624,7 +2538,7 @@ public class Main {
 				e.printStackTrace();
 			}
 			
-		} while (!task.isDone());
+		} while (!task.isDone()); // XXX
 
 		// Shutdown the pool
 		pool.shutdown();
@@ -2648,9 +2562,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe02/src/com/packtpub/java7/concurrency/chapter5/recipe02/utils/DocumentMock.java
-package com.packtpub.java7.concurrency.chapter5.recipe02.utils;
 
-import java.util.Random;
 
 /**
  * This class will simulate a document generating a String array with a determined number
@@ -2658,7 +2570,7 @@ import java.util.Random;
  * selecting in a random way words from a String array.
  *
  */
-public class DocumentMock {
+public static class DocumentMock {
 	
 	/**
 	 * String array with the words of the document
@@ -2676,10 +2588,10 @@ public class DocumentMock {
 		
 		int counter=0;
 		String document[][]=new String[numLines][numWords];
-		Random random=new Random();
+		Random random=new Random(); // XXX new Random(optional seed)
 		for (int i=0; i<numLines; i++){
 			for (int j=0; j<numWords; j++) {
-				int index=random.nextInt(words.length);
+				int index=random.nextInt(words.length); // XXX random.nextInt(number)
 				document[i][j]=words[index];
 				if (document[i][j].equals(word)){
 					counter++;
@@ -2693,12 +2605,8 @@ public class DocumentMock {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe05/src/com/packtpub/java7/concurrency/chapter5/recipe05/task/SearchNumberTask.java
-package com.packtpub.java7.concurrency.chapter5.recipe05.task;
 
-import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe05.util.TaskManager;
 
 /**
  * This task look for a number in an array of integer numbers.
@@ -2714,7 +2622,7 @@ import com.packtpub.java7.concurrency.chapter5.recipe05.util.TaskManager;
  * value.
  *
  */
-public class SearchNumberTask extends RecursiveTask<Integer> {
+public static class SearchNumberTask extends RecursiveTask<Integer> {
 
 	/**
 	 * Serial Version UID
@@ -2817,8 +2725,20 @@ public class SearchNumberTask extends RecursiveTask<Integer> {
 		manager.addTask(task1);
 		manager.addTask(task2);
 
-		task1.fork();
-		task2.fork();
+                // XXX The primary method for awaiting completion and extracting results of a task
+                // is join(), but there are several variants: The Future.get() methods support
+                // interruptible and/or timed waits for completion and report results using Future
+                // conventions. Method invoke() is semantically equivalent to fork(); join() but
+                // always attempts to begin execution in the current thread. The "quiet" forms of
+                // these methods do not extract results or report exceptions. These may be useful
+                // when a set of tasks are being executed, and you need to delay processing of
+                // results or exceptions until all complete. Method invokeAll (available in multiple
+                // versions) performs the most common form of parallel invocation: forking a set of
+                // tasks and joining them all.
+
+                // XXX RecursiveTask has .fork and .join
+		task1.fork();   // XXX
+		task2.fork();   // XXX
 		int returnValue;
 		
 		returnValue=task1.join();
@@ -2838,13 +2758,8 @@ public class SearchNumberTask extends RecursiveTask<Integer> {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe05/src/com/packtpub/java7/concurrency/chapter5/recipe05/util/TaskManager.java
-package com.packtpub.java7.concurrency.chapter5.recipe05.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ForkJoinTask;
 
-import com.packtpub.java7.concurrency.chapter5.recipe05.task.SearchNumberTask;
 
 /**
  * Class that stores all the tasks that have been sent to
@@ -2852,7 +2767,7 @@ import com.packtpub.java7.concurrency.chapter5.recipe05.task.SearchNumberTask;
  * all the tasks
  *
  */
-public class TaskManager {
+public static class TaskManager {
 
 	/**
 	 * List of tasks
@@ -2881,7 +2796,7 @@ public class TaskManager {
 	public void cancelTasks(ForkJoinTask<Integer> cancelTask){
 		for (ForkJoinTask<Integer> task  :tasks) {
 			if (task!=cancelTask) {
-				task.cancel(true);
+				task.cancel(true); // XXX
 				((SearchNumberTask)task).writeCancelMessage();
 			}
 		}
@@ -2890,16 +2805,14 @@ public class TaskManager {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe05/src/com/packtpub/java7/concurrency/chapter5/recipe05/util/ArrayGenerator.java
-package com.packtpub.java7.concurrency.chapter5.recipe05.util;
 
-import java.util.Random;
 
 /**
  * Class that generates an array of integer numbers between 0 and 10
  * with a size specified as parameter
  *
  */
-public class ArrayGenerator {
+public static class ArrayGenerator {
 
 	/**
 	 * Method that generates an array of integer numbers between 0 and 10
@@ -2920,19 +2833,13 @@ public class ArrayGenerator {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe05/src/com/packtpub/java7/concurrency/chapter5/recipe05/core/Main.java
-package com.packtpub.java7.concurrency.chapter5.recipe05.core;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe05.task.SearchNumberTask;
-import com.packtpub.java7.concurrency.chapter5.recipe05.util.ArrayGenerator;
-import com.packtpub.java7.concurrency.chapter5.recipe05.util.TaskManager;
 
 /**
  * Main class of the program. 
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -2954,15 +2861,15 @@ public class Main {
 		SearchNumberTask task=new SearchNumberTask(array,0,1000,5,manager);
 		
 		// Execute the task
-		pool.execute(task);
+		pool.execute(task); // XXX submit from outside
 
 		// Shutdown the pool
-		pool.shutdown();
+		pool.shutdown(); // XXX
 		
 		
 		// Wait for the finalization of the task
 		try {
-			pool.awaitTermination(1, TimeUnit.DAYS);
+			pool.awaitTermination(1, TimeUnit.DAYS); // XXX
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -2975,12 +2882,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe03/task/FolderProcessor.java
-package com.packtpub.java7.concurrency.chapter5.recipe03.task;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.RecursiveTask;
 
 /**
  * Task that process a folder. Throw a new FolderProcesor task for each
@@ -2988,7 +2890,7 @@ import java.util.concurrent.RecursiveTask;
  * it's looking for. If it's the case, it add the file name to the list of results.
  *
  */
-public class FolderProcessor extends RecursiveTask<List<String>> {
+public static class FolderProcessor extends RecursiveTask<List<String>> {
 
 	/**
 	 * Serial Version of the class. You have to add it because the 
@@ -3028,7 +2930,7 @@ public class FolderProcessor extends RecursiveTask<List<String>> {
 		List<FolderProcessor> tasks=new ArrayList<>();
 		
 		File file=new File(path);
-		File content[] = file.listFiles();
+		File content[] = file.listFiles(); // XXX
 		if (content != null) {
 			for (int i = 0; i < content.length; i++) {
 				if (content[i].isDirectory()) {
@@ -3055,6 +2957,9 @@ public class FolderProcessor extends RecursiveTask<List<String>> {
 		}
 		return list;
 	}
+        /*
+         * XXX execute, fork are async.  invoke, invokeAll are await and obtain results, submit, fork return future (FJT) 
+         */
 
 	/**
 	 * Add the results of the tasks thrown by this task to the list this
@@ -3066,7 +2971,7 @@ public class FolderProcessor extends RecursiveTask<List<String>> {
 	private void addResultsFromTasks(List<String> list,
 			List<FolderProcessor> tasks) {
 		for (FolderProcessor item: tasks) {
-			list.addAll(item.join());
+			list.addAll(item.join()); // XXX FJT.join() returns V
 		}
 	}
 
@@ -3087,18 +2992,13 @@ public class FolderProcessor extends RecursiveTask<List<String>> {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe03/src/com/packtpub/java7/concurrency/chapter5/recipe03/core/Main.java
-package com.packtpub.java7.concurrency.chapter5.recipe03.core;
 
-import java.util.List;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe03.task.FolderProcessor;
 
 /**
  * Main class of the example
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -3113,9 +3013,9 @@ public class Main {
 		FolderProcessor documents=new FolderProcessor("C:\\Documents And Settings","log");
 		
 		// Execute the three tasks in the pool
-		pool.execute(system);
-		pool.execute(apps);
-		pool.execute(documents);
+		pool.execute(system); // XXX
+		pool.execute(apps);   // XXX
+		pool.execute(documents); // XXX
 		
 		// Write statistics of the pool until the three tasks end
 		do {
@@ -3130,7 +3030,7 @@ public class Main {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		} while ((!system.isDone())||(!apps.isDone())||(!documents.isDone()));
+		} while ((!system.isDone())||(!apps.isDone())||(!documents.isDone())); // XXX RecursiveTask.isDone()
 		
 		// Shutdown the pool
 		pool.shutdown();
@@ -3138,7 +3038,7 @@ public class Main {
 		// Write the number of results calculate by each task
 		List<String> results;
 		
-		results=system.join();
+		results=system.join(); // XXX .join() returns V
 		System.out.printf("System: %d files found.\n",results.size());
 		
 		results=apps.join();
@@ -3154,10 +3054,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe04/src/com/packtpub/java7/concurrency/chapter5/recipe04/task/Task.java
-package com.packtpub.java7.concurrency.chapter5.recipe04.task;
 
-import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This task throws and exception. It process an array of elements. If the
@@ -3167,7 +3064,7 @@ import java.util.concurrent.TimeUnit;
  * has to process has the third position, it throws an exception.
  * 
  */
-public class Task extends RecursiveTask<Integer> {
+public static class Task extends RecursiveTask<Integer> {
 
 	/**
 	 * Serial Version UID
@@ -3234,12 +3131,8 @@ public class Task extends RecursiveTask<Integer> {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe04/src/com/packtpub/java7/concurrency/chapter5/recipe04/core/Main.java
-package com.packtpub.java7.concurrency.chapter5.recipe04.core;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe04.task.Task;
 
 /**
  * Main class of the example. Creates a ForkJoinPool, an array of 100
@@ -3247,7 +3140,7 @@ import com.packtpub.java7.concurrency.chapter5.recipe04.task.Task;
  * and process the exception thrown by the Task
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class
@@ -3264,11 +3157,11 @@ public class Main {
 		pool.execute(task);
 	
 		// Shutdown the ForkJoinPool
-		pool.shutdown();
+		pool.shutdown(); // XXX initiates shutdown, but submitted jobs continue (how aobut jobs the submitted jobs submit)?
 		
 		// Wait for the finalization of the task
 		try {
-			pool.awaitTermination(1, TimeUnit.DAYS);
+			pool.awaitTermination(1, TimeUnit.DAYS); // XXX wait
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -3276,9 +3169,9 @@ public class Main {
 		// Check if the task has thrown an Exception. If it's the case, write it
 		// to the console
 		
-		if (task.isCompletedAbnormally()) {
+		if (task.isCompletedAbnormally()) { // XXX
 			System.out.printf("Main: An exception has ocurred\n");
-			System.out.printf("Main: %s\n",task.getException());
+			System.out.printf("Main: %s\n",task.getException()); // XXX
 		}
 		
 		System.out.printf("Main: Result: %d",task.join());
@@ -3287,12 +3180,8 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe01/src/com/packtpub/java7/concurrency/chapter5/recipe01/task/Task.java
-package com.packtpub.java7.concurrency.chapter5.recipe01.task;
 
-import java.util.List;
-import java.util.concurrent.RecursiveAction;
 
-import com.packtpub.java7.concurrency.chapter5.recipe01.util.Product;
 
 /**
  * This class implements the tasks that are going to update the
@@ -3301,7 +3190,39 @@ import com.packtpub.java7.concurrency.chapter5.recipe01.util.Product;
  * the assigned interval in two, creates two new tasks and execute them
  *
  */
-public class Task extends RecursiveAction {
+
+/* To execute the subtasks that a task creates, it calls the
+ * invokeAll() method. This is a synchronous call, and the task waits
+ * for the finalization of the subtasks before continuing (potentially
+ * finishing) its execution. While the task is waiting for its
+ * subtasks, the worker thread that was executing it takes another
+ * task that was waiting for execution and executes it. With this
+ * behavior, the Fork/Join framework offers a more efficient task
+ * management than the Runnable and Callable objects themselves.
+
+ * The invokeAll() method of the ForkJoinTask class is one of the main
+ * differences between the Executor and the Fork/Join framework. In
+ * the Executor framework, all the tasks have to be sent to the
+ * executor, while in this case, the tasks include methods to execute
+ * and control the tasks inside the pool. You have used the
+ * invokeAll() method in the Task class, that extends the
+ * RecursiveAction class that extends the ForkJoinTask class.
+
+ * You have sent a unique task to the pool to update all the list of
+ * products using the execute() method. In this case, it's an
+ * asynchronous call, and the main thread continues its execution.
+
+ * You have used some methods of the ForkJoinPool class to check the
+ * status and the evolution of the tasks that are running. The class
+ * includes more methods that can be useful for this purpose. See the
+ * Monitoring a Fork/Join pool recipe for a complete list of those
+ * methods.
+
+ * Finally, like with the Executor framework, you should finish
+ * ForkJoinPool using the shutdown() method.
+*/
+
+public static class Task extends RecursiveAction {
 
 	/**
 	 * serial version UID. The ForkJoinTask class implements the serializable interface.
@@ -3368,17 +3289,14 @@ public class Task extends RecursiveAction {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe01/src/com/packtpub/java7/concurrency/chapter5/recipe01/util/ProductListGenerator.java
-package com.packtpub.java7.concurrency.chapter5.recipe01.util;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class generates a product list of a determined size.
  * Each product is initialized with a predefined name and price.
  *
  */
-public class ProductListGenerator {
+public static class ProductListGenerator {
 
 	/**
 	 * This method generates the list of products
@@ -3402,13 +3320,12 @@ public class ProductListGenerator {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe01/src/com/packtpub/java7/concurrency/chapter5/recipe01/util/Product.java
-package com.packtpub.java7.concurrency.chapter5.recipe01.util;
 
 /**
  * This class stores the data of a Product. It's name and it's price
  *
  */
-public class Product {
+public static class Product {
 	
 	/**
 	 * Name of the product
@@ -3456,22 +3373,15 @@ public class Product {
 
 //=*=*=*=*
 //./Chapter_5/ch5_recipe01/src/com/packtpub/java7/concurrency/chapter5/recipe01/core/Main.java
-package com.packtpub.java7.concurrency.chapter5.recipe01.core;
 
-import java.util.List;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter5.recipe01.task.Task;
-import com.packtpub.java7.concurrency.chapter5.recipe01.util.Product;
-import com.packtpub.java7.concurrency.chapter5.recipe01.util.ProductListGenerator;
 
 /**
  * Main class of the example. It creates a list of products, a ForkJoinPool and 
  * a task to execute the actualization of products. 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -3508,7 +3418,7 @@ public class Main {
 		pool.shutdown();
 		
 		// Check if the task has completed normally
-		if (task.isCompletedNormally()){
+		if (task.isCompletedNormally()){ // XXX
 			System.out.printf("Main: The process has completed normally.\n");
 		}
 
@@ -3529,12 +3439,8 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe05/src/com/packtpub/java7/concurrency/chapter8/recipe07/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe07.task;
 
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
-import com.packtpub.java7.concurrency.chapter8.recipe07.logger.MyLogger;
 
 /**
  * This class is the Task you're going to use to test the
@@ -3544,7 +3450,7 @@ import com.packtpub.java7.concurrency.chapter8.recipe07.logger.MyLogger;
  * task.
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Main method of the task
@@ -3579,11 +3485,7 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe05/src/com/packtpub/java7/concurrency/chapter8/recipe07/logger/MyFormatter.java
-package com.packtpub.java7.concurrency.chapter8.recipe07.logger;
 
-import java.util.Date;
-import java.util.logging.Formatter;
-import java.util.logging.LogRecord;
 
 /**
  * This class is used to format the log messages. The Logger class call the format() method
@@ -3591,7 +3493,7 @@ import java.util.logging.LogRecord;
  * LogRecord object as parameter. That object has all the information about the message.
  *
  */
-public class MyFormatter extends Formatter {
+public static class MyFormatter extends java.util.logging.Formatter {
 
 	/**
 	 * Method that formats the log message. It's declared as abstract in the
@@ -3599,7 +3501,7 @@ public class MyFormatter extends Formatter {
 	 * object as parameter with all the information of the log message
 	 */
 	@Override
-	public String format(LogRecord record) {
+	public String format(java.util.logging.LogRecord record) {
 		
 		/*
 		 * Create a string buffer to construct the message.
@@ -3623,14 +3525,7 @@ public class MyFormatter extends Formatter {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe05/src/com/packtpub/java7/concurrency/chapter8/recipe07/logger/MyLogger.java
-package com.packtpub.java7.concurrency.chapter8.recipe07.logger;
 
-import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class is used to create a Logger object with the configuration
@@ -3640,12 +3535,12 @@ import java.util.logging.Logger;
  * creates a Logger object per name that is passed as parameter. 
  *
  */
-public class MyLogger {
+public static class MyLogger {
 	
 	/**
 	 * Handler to control that the log messages are written in the recipe8.log file
 	 */
-	private static Handler handler;
+	private static java.util.logging.Handler handler;
 	
 	/**
 	 * Static method that returns the log object associated with the name received
@@ -3670,8 +3565,8 @@ public class MyLogger {
 			 * with the format specified by the MyFormatter class
 			 */
 			if (handler==null) {
-				handler=new FileHandler("recipe8.log");
-				Formatter format=new MyFormatter();
+				handler=new java.util.logging.FileHandler("recipe8.log");
+				java.util.logging.Formatter format=new MyFormatter();
 				handler.setFormatter(format);
 			}
 			/*
@@ -3697,19 +3592,14 @@ public class MyLogger {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe05/src/com/packtpub/java7/concurrency/chapter8/recipe07/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe07.core;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.packtpub.java7.concurrency.chapter8.recipe07.logger.MyLogger;
-import com.packtpub.java7.concurrency.chapter8.recipe07.task.Task;
 
 /**
  * Main class of the example. It launch five Task objects and write
  * some log messages indicating the evolution of the execution of the program
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -3765,10 +3655,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe04/src/com/packtpub/java7/concurrency/chapter8/recipe06/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe06.task;
 
-import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a task used to show how to monitor the
@@ -3779,7 +3666,7 @@ import java.util.concurrent.TimeUnit;
  * subsets and create two tasks to execute them. Otherwise, it process
  * the elements of the subset it has to process
  */
-public class Task extends RecursiveAction{
+public static class Task extends RecursiveAction{
 
 	/**
 	 * Declare and initialize the serial version uid of the class
@@ -3829,14 +3716,14 @@ public class Task extends RecursiveAction{
 			/*
 			 * Start the sub-tasks
 			 */
-			task1.fork();
-			task2.fork();
+			task1.fork(); // XXX
+			task2.fork(); // XXX
 			
 			/*
 			 * Wait for the finalization of the sub-tasks
 			 */
-			task1.join();
-			task2.join();
+			task1.join(); // XXX
+			task2.join(); // XXX
 		} else {
 			for (int i=start; i<end; i++) {
 				array[i]++;
@@ -3854,12 +3741,8 @@ public class Task extends RecursiveAction{
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe04/src/com/packtpub/java7/concurrency/chapter8/recipe06/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe06.core;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter8.recipe06.task.Task;
 
 /**
  * Main class of the example. It creates all the elements for the
@@ -3867,7 +3750,7 @@ import com.packtpub.java7.concurrency.chapter8.recipe06.task.Task;
  * executes the task
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -3928,9 +3811,9 @@ public class Main {
 		System.out.printf("**********************\n");
 		System.out.printf("Main: Fork/Join Pool log\n");
 		System.out.printf("Main: Fork/Join Pool: Parallelism: %d\n",pool.getParallelism());
-		System.out.printf("Main: Fork/Join Pool: Pool Size: %d\n",pool.getPoolSize());
-		System.out.printf("Main: Fork/Join Pool: Active Thread Count: %d\n",pool.getActiveThreadCount());
-		System.out.printf("Main: Fork/Join Pool: Running Thread Count: %d\n",pool.getRunningThreadCount());
+		System.out.printf("Main: Fork/Join Pool: Pool Size: %d\n",pool.getPoolSize()); // XXX PoolSize cud differ Parallelism() to account for blocked threads
+		System.out.printf("Main: Fork/Join Pool: Active Thread Count: %d\n",pool.getActiveThreadCount()); // XXX working or stealing work
+		System.out.printf("Main: Fork/Join Pool: Running Thread Count: %d\n",pool.getRunningThreadCount()); // XXX not blocked count
 		System.out.printf("Main: Fork/Join Pool: Queued Submission: %d\n",pool.getQueuedSubmissionCount());
 		System.out.printf("Main: Fork/Join Pool: Queued Tasks: %d\n",pool.getQueuedTaskCount());
 		System.out.printf("Main: Fork/Join Pool: Queued Submissions: %s\n",pool.hasQueuedSubmissions());
@@ -3943,10 +3826,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe01/src/com/packtpub/java7/concurrency/chapter8/recipe02/task/MyLock.java
-package com.packtpub.java7.concurrency.chapter8.recipe02.task;
 
-import java.util.Collection;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Create a specific class to extend the ReentrantLock class.
@@ -3957,7 +3837,26 @@ import java.util.concurrent.locks.ReentrantLock;
  * getThreads() returns the list of threads queued in the lock and uses
  * the protected method getQueuedThreads();
  */
-public class MyLock extends ReentrantLock {
+
+/* We have also used other methods that are implemented in the ReentrantLock class:
+ *
+ * hasQueuedThreads(): This method returns a Boolean value indicating
+ * if there are threads waiting to acquire this lock
+ *
+ * getQueueLength(): This method returns the number of threads that
+ * are waiting to acquire this lock
+ *
+ * isLocked(): This method returns a Boolean value indicating whether
+ * this lock is owned by a thread
+ * 
+ * isFair(): This method returns a Boolean value indicating if this lock has the fair mode activated
+ * There's more...
+ * There are other methods in the ReentrantLock class that can be used to obtain information about a Lock object:
+ * getHoldCount(): Returns the number of times that the current thread has acquired the lock
+ * isHeldByCurrentThread(): Returns a Boolean value indicating if the lock is owned by the current thread
+*/
+
+public static class MyLock extends java.util.concurrent.locks.ReentrantLock {
 
 	/**
 	 * Declare the serial version uid of the class
@@ -3970,7 +3869,7 @@ public class MyLock extends ReentrantLock {
 	 * @return The name of the thread that has the control of the lock
 	 */
 	public String getOwnerName() {
-		if (this.getOwner()==null) {
+		if (this.getOwner()==null) { // XXX returns Thread
 			return "None";
 		}
 		return this.getOwner().getName();
@@ -3981,16 +3880,13 @@ public class MyLock extends ReentrantLock {
 	 * @return The list of threads queued in the Lock
 	 */
 	public Collection<Thread> getThreads() {
-		return this.getQueuedThreads();
+		return this.getQueuedThreads(); // XXX Collection<Thread>
 	}
 }
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe01/src/com/packtpub/java7/concurrency/chapter8/recipe02/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe02.task;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 /**
  * This task used to write information about a Lock. It takes the control
@@ -3998,7 +3894,7 @@ import java.util.concurrent.locks.Lock;
  * behavior five times
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Lock shared by all the tasks
@@ -4049,20 +3945,15 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe01/src/com/packtpub/java7/concurrency/chapter8/recipe02/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe02.core;
 
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter8.recipe02.task.MyLock;
-import com.packtpub.java7.concurrency.chapter8.recipe02.task.Task;
 
 /**
  * Main class of the example. Create five threads to execute the task and write info
  * about the Lock shared by all the threads
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -4096,19 +3987,19 @@ public class Main {
 			 */
 			System.out.printf("Main: Logging the Lock\n");
 			System.out.printf("************************\n");
-			System.out.printf("Lock: Owner : %s\n",lock.getOwnerName());
-			System.out.printf("Lock: Queued Threads: %s\n",lock.hasQueuedThreads());
+			System.out.printf("Lock: Owner : %s\n",lock.getOwnerName()); // XXX
+			System.out.printf("Lock: Queued Threads: %s\n",lock.hasQueuedThreads()); // XXX
 			if (lock.hasQueuedThreads()){
-				System.out.printf("Lock: Queue Length: %d\n",lock.getQueueLength());
+				System.out.printf("Lock: Queue Length: %d\n",lock.getQueueLength()); // XXX
 				System.out.printf("Lock: Queued Threads: ");
-				Collection<Thread> lockedThreads=lock.getThreads();
+				Collection<Thread> lockedThreads=lock.getThreads(); // XXX
 				for (Thread lockedThread : lockedThreads) {
-				System.out.printf("%s ",lockedThread.getName());
+				System.out.printf("%s ",lockedThread.getName()); // XXX
 				}
 				System.out.printf("\n");
 			}
-			System.out.printf("Lock: Fairness: %s\n",lock.isFair());
-			System.out.printf("Lock: Locked: %s\n",lock.isLocked());
+			System.out.printf("Lock: Fairness: %s\n",lock.isFair()); // XXX
+			System.out.printf("Lock: Locked: %s\n",lock.isLocked()); // XXX
 			System.out.printf("************************\n");
 			/*
 			 * Sleep the thread for one second
@@ -4121,14 +4012,12 @@ public class Main {
 //=*=*=*=*
 //./Chapter_8/ch8_recipe08/src/com/packtpub/java7/concurrenty/chapter8/recipe10/task/Task2.java
 
-package com.packtpub.java7.concurrenty.chapter8.recipe10.task;
 
-import java.util.concurrent.locks.Lock;
 
 /**
  * This task implements the second task of the example
  */
-public class Task2 implements Runnable{
+public static class Task2 implements Runnable{
 
     /**
      * Two locks used by the example
@@ -4162,14 +4051,12 @@ public class Task2 implements Runnable{
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe08/src/com/packtpub/java7/concurrenty/chapter8/recipe10/task/Task1.java
-package com.packtpub.java7.concurrenty.chapter8.recipe10.task;
 
-import java.util.concurrent.locks.Lock;
 
 /**
  * This class implements the first task of the example
  */
-public class Task1 implements Runnable {
+public static class Task1 implements Runnable {
     
     /**
      * Two locks that will be used by the example
@@ -4203,20 +4090,12 @@ public class Task1 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe08/src/com/packtpub/java7/concurrenty/chapter8/recipe10/core/Main.java
-package com.packtpub.java7.concurrenty.chapter8.recipe10.core;
 
-import com.packtpub.java7.concurrenty.chapter8.recipe10.task.Task1;
-import com.packtpub.java7.concurrenty.chapter8.recipe10.task.Task2;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Main class of the example
  */
-public class Main {
+public static class Main {
 
     /**
      * Main method of the example
@@ -4247,6 +4126,7 @@ public class Main {
         
         thread1.join();
         thread2.join();
+        /* XXX threadX.isAlive()/isDaemon()/isInterrupted() */
         /*
          * While the tasks haven't finished, write a message every 500 milliseconds
          */
@@ -4263,15 +4143,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe03/src/com/packtpub/java7/concurrency/chapter8/recipe05/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe05.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task implemented to log data about an Executor 
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Number of milliseconds this task is going to sleep the thread
@@ -4307,14 +4185,8 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe03/src/com/packtpub/java7/concurrency/chapter8/recipe05/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe05.core;
 
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter8.recipe05.task.Task;
 
 /**
  * Main class of the example. Create an Executor and submits ten Task
@@ -4322,7 +4194,7 @@ import com.packtpub.java7.concurrency.chapter8.recipe05.task.Task;
  * to see its evolution. 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -4332,7 +4204,7 @@ public class Main {
 		/*
 		 * Create a new Executor
 		 */
-		ThreadPoolExecutor executor=(ThreadPoolExecutor)Executors.newCachedThreadPool();
+		ThreadPoolExecutor executor=(ThreadPoolExecutor)Executors.newCachedThreadPool(); // XXX returns ExecutorService cast needed
 		
 		/*
 		 * Create and submit ten tasks
@@ -4367,7 +4239,7 @@ public class Main {
 		/*
 		 * Wait for the finalization of the executor
 		 */
-		executor.awaitTermination(1, TimeUnit.DAYS);
+		executor.awaitTermination(1, TimeUnit.DAYS); // XXX
 		
 		/*
 		 * Write a message to indicate the end of the program 
@@ -4383,11 +4255,11 @@ public class Main {
 	private static void showLog(ThreadPoolExecutor executor) {
 		System.out.printf("*********************");
 		System.out.printf("Main: Executor Log");
-		System.out.printf("Main: Executor: Core Pool Size: %d\n",executor.getCorePoolSize());
-		System.out.printf("Main: Executor: Pool Size: %d\n",executor.getPoolSize());
-		System.out.printf("Main: Executor: Active Count: %d\n",executor.getActiveCount());
-		System.out.printf("Main: Executor: Task Count: %d\n",executor.getTaskCount());
-		System.out.printf("Main: Executor: Completed Task Count: %d\n",executor.getCompletedTaskCount());
+		System.out.printf("Main: Executor: Core Pool Size: %d\n",executor.getCorePoolSize()); // XXX
+		System.out.printf("Main: Executor: Pool Size: %d\n",executor.getPoolSize()); // XXX
+		System.out.printf("Main: Executor: Active Count: %d\n",executor.getActiveCount()); // XXX
+		System.out.printf("Main: Executor: Task Count: %d\n",executor.getTaskCount()); // XXX
+		System.out.printf("Main: Executor: Completed Task Count: %d\n",executor.getCompletedTaskCount()); // XXX
 		System.out.printf("Main: Executor: Shutdown: %s\n",executor.isShutdown());
 		System.out.printf("Main: Executor: Terminating: %s\n",executor.isTerminating());
 		System.out.printf("Main: Executor: Terminated: %s\n",executor.isTerminated());
@@ -4398,11 +4270,8 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe09/src/com/packtpub/java7/concurrency/chapter8/recipe11/test/ProducerConsumerTest.java
-package com.packtpub.java7.concurrency.chapter8.recipe11.test;
 
-import java.util.concurrent.LinkedTransferQueue;
 
-import edu.umd.cs.mtc.MultithreadedTestCase;
 
 /**
  * This class implements a test of the LinkedTransferQueue. It has
@@ -4410,12 +4279,14 @@ import edu.umd.cs.mtc.MultithreadedTestCase;
  * arrives the second consumer and finally the producer puts two Strings
  * in the buffer. 
  */
-public class ProducerConsumerTest extends MultithreadedTestCase {
+
+/* XXX MultiThreadedTestCase is from http://code.google.com/p/multithreadedtc/  Bill Pugh */
+public static class ProducerConsumerTest extends MultithreadedTestCase {
 
 	/**
 	 * Declare the buffer shared by the producer and the consumers 
 	 */
-	private LinkedTransferQueue<String> queue;
+	private LinkedTransferQueue<String> queue; // XXX
 	
 	/**
 	 * Creates the buffer
@@ -4442,7 +4313,7 @@ public class ProducerConsumerTest extends MultithreadedTestCase {
 	 * @throws InterruptedException
 	 */
 	public void thread2() throws InterruptedException {
-		waitForTick(1);
+		waitForTick(1); // XXX
 		String ret=queue.take();
 		System.out.printf("Thread 2: %s\n",ret);
 	}
@@ -4453,9 +4324,29 @@ public class ProducerConsumerTest extends MultithreadedTestCase {
 	 * happens when the second consumer arrives. Finally, put two strings in
 	 * the buffer.
 	 */
+
+        /* XXX Multithreaded has an internal metronome (or clock). But don't try and use it to set the
+         * tempo for your jazz band. The clock only advances to the next tick when all threads are
+         * blocked.  The clock starts at tick 0. In this example, the statement waitForTick(1) makes
+         * Thread 2 block until the clock reaches tick 1 before resuming. Thread 1 is allowed to run
+         * freely in tick 0, until it blocks on the call to put(17). At this point, all threads are
+         * blocked, and the clock can advance to the next tick.
+         *
+         *
+         * The class TestFramework, provides most of the scaffolding required to run MultithreadedTC
+         * tests. It uses reflection to identify all relevant methods in the test class, invokes
+         * them simultaneously in different threads. It regulates these threads using a separate
+         * clock thread.  The clock thread checks periodically to see if all threads are
+         * blocked. If all threads are blocked and at least one is waiting for a tick, the clock
+         * thread advances the clock to the next desired tick. The clock thread also detects
+         * deadlock (when all threads are blocked, none are waiting for a tick, and none are in
+         * state TIMED_WAITING), and can stop a test that is going on too long (a thread is in
+         * state RUNNABLE for too long.)
+         */
+ 
 	public void thread3() {
-		waitForTick(1);
-		waitForTick(2);
+		waitForTick(1); // XXX
+		waitForTick(2); // XXX
 		queue.put("Event 1");
 		queue.put("Event 2");
 		System.out.printf("Thread 3: Inserted two elements\n");
@@ -4476,16 +4367,13 @@ public class ProducerConsumerTest extends MultithreadedTestCase {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe09/src/com/packtpub/java7/concurrency/chapter8/recipe11/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe11.core;
 
-import com.packtpub.java7.concurrency.chapter8.recipe11.test.ProducerConsumerTest;
 
-import edu.umd.cs.mtc.TestFramework;
 
 /**
  * Main class of the example. Executes the test of the LinkedTransferQueue
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -4510,16 +4398,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe06/src/com/packtpub/java7/concurrency/chapter8/recipe08/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe08.task;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Task implemented to test the FindBugs utility 
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Lock used in the task
@@ -4544,7 +4429,7 @@ public class Task implements Runnable {
 		try {
 			TimeUnit.SECONDS.sleep(1);
 			/*
-			 * There is a problem with this unlock. If the thread is interrupted
+			 * XXX There is a problem with this unlock. If the thread is interrupted
 			 * while it is sleeping, the lock won't be unlocked and it will cause
 			 * that the threads that are waiting for this block will be blocked and
 			 * never will get the control of the Lock.
@@ -4560,17 +4445,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe06/src/com/packtpub/java7/concurrency/chapter8/recipe08/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe08.core;
 
-import java.util.concurrent.locks.ReentrantLock;
 
-import com.packtpub.java7.concurrency.chapter8.recipe08.task.Task;
 
 /**
  * Main class of the example. It launch ten Task objects 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -4582,7 +4464,7 @@ public class Main {
 		ReentrantLock lock=new ReentrantLock();
 		
 		/*
-		 * Executes the threads. There is a problem with this
+		 * XXX Executes the threads. There is a problem with this
 		 * block of code. It uses the run() method instead of
 		 * the start() method.
 		 */
@@ -4598,17 +4480,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe02/src/com/packtpub/java7/concurrency/chapter8/recipe04/task/Task.java
-package com.packtpub.java7.concurrency.chapter8.recipe04.task;
 
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task to write information about a Phaser. It executes three phases. In each
  * phase, it sleeps the thread the number of seconds specified by the time attribute
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 	
 	/**
 	 * Number of seconds this task is going to sleep the thread in each phase
@@ -4634,12 +4513,35 @@ public class Task implements Runnable {
 	 * Main method of the task. Executes three phases. In each phase, sleeps
 	 * the thread the number of seconds specified by the time attribute.
 	 */
+
+    /*
+     * XXX Phaser
+     *
+     * Arrival. Methods arrive() and arriveAndDeregister() record arrival. These methods do not
+     * block, but return an associated arrival phase number; that is, the phase number of the phaser
+     * to which the arrival applied. When the final party for a given phase arrives, an optional
+     * action is performed and the phase advances. These actions are performed by the party
+     * triggering a phase advance, and are arranged by overriding method onAdvance(int, int), which
+     * also controls termination. Overriding this method is similar to, but more flexible than,
+     * providing a barrier action to a CyclicBarrier.
+
+     * Waiting. Method awaitAdvance(int) requires an argument indicating an arrival phase number,
+     * and returns when the phaser advances to (or is already at) a different phase. Unlike similar
+     * constructions using CyclicBarrier, method awaitAdvance continues to wait even if the waiting
+     * thread is interrupted. Interruptible and timeout versions are also available, but exceptions
+     * encountered while tasks wait interruptibly or with timeout do not change the state of the
+     * phaser. If necessary, you can perform any associated recovery within handlers of those
+     * exceptions, often after invoking forceTermination. Phasers may also be used by tasks
+     * executing in a ForkJoinPool, which will ensure sufficient parallelism to execute tasks when
+     * others are blocked waiting for a phase to advance. 
+     */
+
 	@Override
 	public void run() {
 		/*
 		 * Arrive to the phaser
 		 */
-		phaser.arrive();
+		phaser.arrive(); // XXX nonblocking returns the phase to which this arrival applied.
 		/*
 		 * Phase 1
 		 */
@@ -4667,7 +4569,7 @@ public class Task implements Runnable {
 		/*
 		 * End of Phase 2
 		 */
-		phaser.arriveAndAwaitAdvance();
+		phaser.arriveAndAwaitAdvance(); // XXX
 		/*
 		 * Phase 3
 		 */
@@ -4681,24 +4583,20 @@ public class Task implements Runnable {
 		/*
 		 * End of Phase 3
 		 */
-		phaser.arriveAndDeregister();
+		phaser.arriveAndDeregister(); // XXX
 	}
 }
 
 //=*=*=*=*
 //./Chapter_8/ch8_recipe02/src/com/packtpub/java7/concurrency/chapter8/recipe04/core/Main.java
-package com.packtpub.java7.concurrency.chapter8.recipe04.core;
 
-import java.util.concurrent.Phaser;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter8.recipe04.task.Task;
 
 /**
  * Maîn class of the example. Creates a Phaser with three participants and
  * Three task objects. Write information about the evolution of the Phaser
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -4724,10 +4622,10 @@ public class Main {
 		for (int i=0; i<10; i++) {
 			System.out.printf("********************\n");
 			System.out.printf("Main: Phaser Log\n");
-			System.out.printf("Main: Phaser: Phase: %d\n",phaser.getPhase());
-			System.out.printf("Main: Phaser: Registered Parties: %d\n",phaser.getRegisteredParties());
-			System.out.printf("Main: Phaser: Arrived Parties: %d\n",phaser.getArrivedParties());
-			System.out.printf("Main: Phaser: Unarrived Parties: %d\n",phaser.getUnarrivedParties());
+			System.out.printf("Main: Phaser: Phase: %d\n",phaser.getPhase()); // XXX
+			System.out.printf("Main: Phaser: Registered Parties: %d\n",phaser.getRegisteredParties()); // XXX
+			System.out.printf("Main: Phaser: Arrived Parties: %d\n",phaser.getArrivedParties()); // XXX
+			System.out.printf("Main: Phaser: Unarrived Parties: %d\n",phaser.getUnarrivedParties()); // XXX
 			System.out.printf("********************\n");
 
 			TimeUnit.SECONDS.sleep(1);
@@ -4737,16 +4635,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe11/src/com/packtpub/java7/concurrency/chapter4/recipe12/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe12.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a task executed in this example. It only waits
  * a random perior of time
  *
  */
-public class Task implements Runnable{
+public static class Task implements Runnable{
 
 	/**
 	 * Name of the task
@@ -4788,10 +4684,7 @@ public class Task implements Runnable{
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe11/src/com/packtpub/java7/concurrency/chapter4/recipe12/task/RejectedTaskController.java
-package com.packtpub.java7.concurrency.chapter4.recipe12.task;
 
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * This class implements the handler for the rejected tasks. Implements
@@ -4799,15 +4692,15 @@ import java.util.concurrent.ThreadPoolExecutor;
  * sent to an executor after it was finished using the shutdown() method 
  *
  */
-public class RejectedTaskController implements RejectedExecutionHandler {
+public static class RejectedTaskController implements RejectedExecutionHandler {
 
 	/**
 	 * Method that will be executed for each rejected task
 	 * @param r Task that has been rejected
 	 * @param executor Executor that has rejected the task
 	 */
-	@Override
-	public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+	@Override                                                                // XXX rejectedExecution
+	public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) { // XXX gets ThreadPoolExecutor argument
 		System.out.printf("RejectedTaskController: The task %s has been rejected\n",r.toString());
 		System.out.printf("RejectedTaskController: %s\n",executor.toString());
 		System.out.printf("RejectedTaskController: Terminating: %s\n",executor.isTerminating());
@@ -4818,20 +4711,15 @@ public class RejectedTaskController implements RejectedExecutionHandler {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe11/src/com/packtpub/java7/concurrency/chapter4/recipe12/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe12.core;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import com.packtpub.java7.concurrency.chapter4.recipe12.task.RejectedTaskController;
-import com.packtpub.java7.concurrency.chapter4.recipe12.task.Task;
 
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -4842,7 +4730,7 @@ public class Main {
 		// Create the controller for the Rejected tasks
 		RejectedTaskController controller=new RejectedTaskController();
 		// Create the executor and establish the controller for the Rejected tasks
-		ThreadPoolExecutor executor=(ThreadPoolExecutor)Executors.newCachedThreadPool();
+		ThreadPoolExecutor executor=(ThreadPoolExecutor)Executors.newCachedThreadPool(); // XXX returns ExecutorService cast needed
 		executor.setRejectedExecutionHandler(controller);
 		
 		// Lauch three tasks
@@ -4859,7 +4747,7 @@ public class Main {
 		// Send another task
 		System.out.printf("Main: Sending another Task.\n");
 		Task task=new Task("RejectedTask");
-		executor.submit(task);
+		executor.submit(task); // XXX rejected because executor is shutdown
 		
 		// The program ends
 		System.out.printf("Main: End.\n");
@@ -4870,17 +4758,40 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe02/src/com/packtpub/java7/concurrency/chapter4/recipe1/task/Server.java
-package com.packtpub.java7.concurrency.chapter4.recipe1.task;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * This class simulates a server, for example, a web server, that receives
  * requests and uses a ThreadPoolExecutor to execute those requests
  *
  */
-public class Server {
+
+/* XXX
+ * The first important point is the creation of ThreadPoolExecutor in the constructor of the Server
+ * class. The ThreadPoolExecutor class has four different constructors but, due to their complexity,
+ * the Java concurrency API provides the Executors class to construct executors and other related
+ * objects. Although we can create ThreadPoolExecutor directly using one of its constructors, it's
+ * recommended to use the Executors class.
+
+ * In this case, you have created a cached thread pool using the newCachedThreadPool() method. This
+ * method returns an ExecutorService object, so it's been cast to ThreadPoolExecutor to have access
+ * to all its methods. The cached thread pool you have created creates new threads if needed to
+ * execute the new tasks, and reuses the existing ones if they have finished the execution of the
+ * task they were running, which are now available. The reutilization of threads has the advantage
+ * that it reduces the time taken for thread creation. The cached thread pool has, however, a
+ * disadvantage of constant lying threads for new tasks, so if you send too many tasks to this
+ * executor, you can overload the system. 
+ *
+ * One critical aspect of the ThreadPoolExecutor class, and of the executors in general, is that you
+ * have to end it explicitly. If you don't do this, the executor will continue its execution and the
+ * program won't end. If the executor doesn't have tasks to execute, it continues waiting for new
+ * tasks and it doesn't end its execution. A Java application won't end until all its non-daemon
+ * threads finish their execution, so, if you don't terminate the executor, your application will
+ * never end.
+ */
+
+
+public static class Server {
 
 	/**
 	 * ThreadPoolExecutors to manage the execution of the request
@@ -4891,7 +4802,7 @@ public class Server {
 	 * Constructor of the class. Creates the executor object
 	 */
 	public Server(){
-		executor=(ThreadPoolExecutor)Executors.newFixedThreadPool(5);
+		executor=(ThreadPoolExecutor)Executors.newFixedThreadPool(5); // XXX returns ExecutorService cast needed
 	}
 	
 	/**
@@ -4899,6 +4810,7 @@ public class Server {
 	 * server uses the executor to execute the request that it receives
 	 * @param task The request made to the server
 	 */
+
 	public void executeTask(Task task){
 		System.out.printf("Server: A new task has arrived\n");
 		executor.execute(task);
@@ -4919,16 +4831,13 @@ public class Server {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe02/src/com/packtpub/java7/concurrency/chapter4/recipe1/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe1.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a concurrent task
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * The start date of the task
@@ -4972,17 +4881,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe02/src/com/packtpub/java7/concurrency/chapter4/recipe1/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe1.core;
 
-import com.packtpub.java7.concurrency.chapter4.recipe1.task.Server;
-import com.packtpub.java7.concurrency.chapter4.recipe1.task.Task;
 
 /**
  * Main class of the example. Creates a server and 100 request of the Task class
  * that sends to the server
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -5006,9 +4912,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe03/src/com/packtpub/java7/concurrency/chapter4/recipe3/task/FactorialCalculator.java
-package com.packtpub.java7.concurrency.chapter4.recipe3.task;
 
-import java.util.concurrent.Callable;
 
 /**
  * 
@@ -5017,7 +4921,9 @@ import java.util.concurrent.Callable;
  * The call method() will return an Interger
  *
  */
-public class FactorialCalculator implements Callable<Integer> {
+
+/* XXX Callable or FutureTask to collect returned values */
+public static class FactorialCalculator implements Callable<Integer> {
 
 	/**
 	 * Number to calculate the factorial
@@ -5061,24 +4967,15 @@ public class FactorialCalculator implements Callable<Integer> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe03/src/com/packtpub/java7/concurrency/chapter4/recipe3/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe3.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import com.packtpub.java7.concurrency.chapter4.recipe3.task.FactorialCalculator;
 
 /**
  * Main class of the example. Creates and execute ten FactorialCalculator tasks
  * in an executor controlling when they finish to write the results calculated
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -5097,8 +4994,8 @@ public class Main {
 		for (int i=0; i<10; i++){
 			Integer number=new Integer(random.nextInt(10));
 			FactorialCalculator calculator=new FactorialCalculator(number);
-			Future<Integer> result=executor.submit(calculator);
-			resultList.add(result);
+			Future<Integer> result=executor.submit(calculator); // XXX if you submit runnable it returns Future<?>, a second form
+			resultList.add(result);                             // submit(Runnable r, T ret), returns Future<T> (there's an example up above)
 		}
 		
 		// Wait for the finalization of the ten tasks
@@ -5106,14 +5003,14 @@ public class Main {
 			System.out.printf("Main: Number of Completed Tasks: %d\n",executor.getCompletedTaskCount());
 			for (int i=0; i<resultList.size(); i++) {
 				Future<Integer> result=resultList.get(i);
-				System.out.printf("Main: Task %d: %s\n",i,result.isDone());
+				System.out.printf("Main: Task %d: %s\n",i,result.isDone()); // XXX also isCancelled
 			}
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		} while (executor.getCompletedTaskCount()<resultList.size());
+		} while (executor.getCompletedTaskCount()<resultList.size()); // XXX getCompletedTaskCount()
 		
 		// Write the results
 		System.out.printf("Main: Results\n");
@@ -5121,7 +5018,7 @@ public class Main {
 			Future<Integer> result=resultList.get(i);
 			Integer number=null;
 			try {
-				number=result.get();
+				number=result.get(); // XXX blocking call if not done.
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
@@ -5139,10 +5036,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe06/src/com/packtpub/java7/concurrency/chapter4/recipe7/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe7.task;
 
-import java.util.Date;
-import java.util.concurrent.Callable;
 
 /**
  * This class implements the task of this example. Writes a
@@ -5150,7 +5044,7 @@ import java.util.concurrent.Callable;
  * 'Hello, world' string
  *
  */
-public class Task implements Callable<String> {
+public static class Task implements Callable<String> {
 
 	/**
 	 * Name of the task
@@ -5179,14 +5073,8 @@ public class Task implements Callable<String> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe06/src/com/packtpub/java7/concurrency/chapter4/recipe7/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe7.core;
 
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter4.recipe7.task.Task;
 
 /**
  * Main class of the example. Send 5 tasks to an scheduled executor
@@ -5197,7 +5085,7 @@ import com.packtpub.java7.concurrency.chapter4.recipe7.task.Task;
  *   Task 4: Delay of 5 seconds 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -5206,14 +5094,16 @@ public class Main {
 	public static void main(String[] args) {
 
 		// Create a ScheduledThreadPoolExecutor
-		ScheduledExecutorService executor=(ScheduledExecutorService)Executors.newScheduledThreadPool(1);
+		ScheduledExecutorService executor=(ScheduledExecutorService)Executors.newScheduledThreadPool(1); // XXX scheduled, cast to ScheduledExecutorService
+                // XXX as opposed to ThreadPoolExecutor
 		
 		System.out.printf("Main: Starting at: %s\n",new Date());
 		
 		// Send the tasks to the executor with the specified delay
 		for (int i=0; i<5; i++) {
 			Task task=new Task("Task "+i);
-			executor.schedule(task,i+1 , TimeUnit.SECONDS);
+			executor.schedule(task,i+1 , TimeUnit.SECONDS); // XXX delay, TimeUnit. Also, scheduleAtFixedRate(r, initDelay, period, TimeUnit) and
+                        // XXX scheduleWithFixedDelay(r, initialDelay, delay, TimeUnit)
 		}
 		
 		// Finish the executor
@@ -5221,7 +5111,7 @@ public class Main {
 		
 		// Waits for the finalization of the executor
 		try {
-			executor.awaitTermination(1, TimeUnit.DAYS);
+			executor.awaitTermination(1, TimeUnit.DAYS); // XXX awaitTermination
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -5233,16 +5123,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe08/src/com/packtpub/java7/concurrency/chapter4/recipe9/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe9.task;
 
-import java.util.concurrent.Callable;
 
 /**
  * This class implements the task of the example. It simply writes a message
  * to the console every 100 milliseconds 
  *
  */
-public class Task implements Callable<String> {
+public static class Task implements Callable<String> {
 
 	/**
 	 * Main method of the task. It has an infinite loop that writes a message to
@@ -5259,21 +5147,30 @@ public class Task implements Callable<String> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe08/src/com/packtpub/java7/concurrency/chapter4/recipe9/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe9.core;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter4.recipe9.task.Task;
+/* XXX Executors submit vs execute
+ *
+ * There is a difference concerning exception/error handling.
+
+ * A task queued with execute() that generates some Throwable will cause the
+ * UncaughtExceptionHandler for the Thread running the task to be invoked. The default
+ * UncaughtExceptionHandler, which typically prints the Throwable stack trace to System.err,
+ * will be invoked if no custom handler has been installed.
+
+ * On the other hand, a Throwable generated by a task queued with submit() will bind the
+ * Throwable to the Future that was produced from the call to submit(). Calling get() on
+ * that Future will throw an ExecutionException with the original Throwable as its cause
+ * (accessible by calling getCause() on the ExecutionException). 
+ */
+ 
 
 /**
  * Main class of the example. Execute a task trough an executor, waits
  * 2 seconds and then cancel the task.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class
@@ -5301,7 +5198,7 @@ public class Main {
 		
 		// Cancel the task, finishing its execution
 		System.out.printf("Main: Cancelling the Task\n");
-		result.cancel(true);
+		result.cancel(true); // XXX use the Future to cancel
 		// Verify that the task has been cancelled
 		System.out.printf("Main: Cancelled: %s\n",result.isCancelled());
 		System.out.printf("Main: Done: %s\n",result.isDone());
@@ -5315,17 +5212,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe01/src/com/packtpub/java7/concurrency/chapter4/recipe1/task/Server.java
-package com.packtpub.java7.concurrency.chapter4.recipe1.task;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * This class simulates a server, for example, a web server, that receives
  * requests and uses a ThreadPoolExecutor to execute those requests
  *
  */
-public class Server {
+public static class Server {
 	
 	/**
 	 * ThreadPoolExecutors to manage the execution of the request
@@ -5363,16 +5257,13 @@ public class Server {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe01/src/com/packtpub/java7/concurrency/chapter4/recipe1/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe1.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a concurrent task 
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * The start date of the task
@@ -5415,17 +5306,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe01/src/com/packtpub/java7/concurrency/chapter4/recipe1/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe1.core;
 
-import com.packtpub.java7.concurrency.chapter4.recipe1.task.Server;
-import com.packtpub.java7.concurrency.chapter4.recipe1.task.Task;
 
 /**
  * Main class of the example. Creates a server and 100 request of the Task class
  * that sends to the server
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -5449,16 +5337,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe09/src/com/packtpub/java7/concurrency/chapter4/recipe10/task/ExecutableTask.java
-package com.packtpub.java7.concurrency.chapter4.recipe10.task;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the task of this example. It waits a random period of time
  *
  */
-public class ExecutableTask implements Callable<String> {
+public static class ExecutableTask implements Callable<String> {
 
 	/**
 	 * The name of the class
@@ -5498,17 +5383,14 @@ public class ExecutableTask implements Callable<String> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe09/src/com/packtpub/java7/concurrency/chapter4/recipe10/task/ResultTask.java
-package com.packtpub.java7.concurrency.chapter4.recipe10.task;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 /**
  * This class manage the execution of a ExecutableTaks. Overrides
  * the done() method that is called when the task finish its execution 
  *
  */
-public class ResultTask extends FutureTask<String> {
+public static class ResultTask extends FutureTask<String> {
 
 	/**
 	 * Name of the ResultTask. It's initialized with the name of the
@@ -5541,15 +5423,8 @@ public class ResultTask extends FutureTask<String> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe09/src/com/packtpub/java7/concurrency/chapter4/recipe10/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe10.core;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter4.recipe10.task.ExecutableTask;
-import com.packtpub.java7.concurrency.chapter4.recipe10.task.ResultTask;
 
 /**
  * Main class of the example. Creates five tasks that wait a random period of time.
@@ -5557,7 +5432,7 @@ import com.packtpub.java7.concurrency.chapter4.recipe10.task.ResultTask;
  * that haven't been cancelled.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class.
@@ -5572,7 +5447,7 @@ public class Main {
 		for (int i=0; i<5; i++) {
 			ExecutableTask executableTask=new ExecutableTask("Task "+i);
 			resultTasks[i]=new ResultTask(executableTask);
-			executor.submit(resultTasks[i]);
+			executor.submit(resultTasks[i]); // XXX submitting FutureTask -> implements RunnableFuture -> extends Runnable, Future
 		}
 		
 		// Sleep the thread five seconds
@@ -5607,13 +5482,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe05/src/com/packtpub/java7/concurrency/chapter4/recipe6/task/Result.java
-package com.packtpub.java7.concurrency.chapter4.recipe6.task;
 
 /**
  * This class stores the result generated by one task
  *
  */
-public class Result {
+public static class Result {
 	/**
 	 * The name of the task that generates the result
 	 */
@@ -5659,17 +5533,14 @@ public class Result {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe05/src/com/packtpub/java7/concurrency/chapter4/recipe6/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe6.task;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements the task of this example. It waits during a random
  * period of time and then calculate the sum of five random numbers 
  *
  */
-public class Task implements Callable<Result> {
+public static class Task implements Callable<Result> {
 
 	/**
 	 * The name of the Task
@@ -5723,24 +5594,15 @@ public class Task implements Callable<Result> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe05/src/com/packtpub/java7/concurrency/chapter4/recipe6/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe6.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import com.packtpub.java7.concurrency.chapter4.recipe6.task.Result;
-import com.packtpub.java7.concurrency.chapter4.recipe6.task.Task;
 
 /**
  * Main class of the example. Launch three tasks using the invokeAll() method
  * and then prints their results to the console
  *
  */
-public class Main {
+public static class Main {
 
 	public static void main(String[] args) {
 
@@ -5769,7 +5631,7 @@ public class Main {
 		for (int i=0; i<resultList.size(); i++){
 			Future<Result> future=resultList.get(i);
 			try {
-				Result result=future.get();
+				Result result=future.get(); // XXX
 				System.out.printf("%s: %s\n",result.getName(),result.getValue());
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
@@ -5781,9 +5643,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe07/src/com/packtpub/java7/concurrency/chapter4/recipe8/task/Task.java
-package com.packtpub.java7.concurrency.chapter4.recipe8.task;
 
-import java.util.Date;
 
 /**
  * This class implements the task of the example. Writes a message to
@@ -5793,7 +5653,7 @@ import java.util.Date;
  *  execute tasks periodically
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Name of the task
@@ -5821,22 +5681,15 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe07/src/com/packtpub/java7/concurrency/chapter4/recipe8/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe8.core;
 
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter4.recipe8.task.Task;
 
 /**
  * Main class of the example. Send a task to the executor that will execute every
  * two seconds. Then, control the remaining time for the next execution of the task 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class
@@ -5851,11 +5704,12 @@ public class Main {
 		// Create a new task and sends it to the executor. It will start with a delay of 1 second and then
 		// it will execute every two seconds
 		Task task=new Task("Task");
-		ScheduledFuture<?> result=executor.scheduleAtFixedRate(task, 1, 2, TimeUnit.SECONDS);
+		ScheduledFuture<?> result=executor.scheduleAtFixedRate(task, 1, 2, TimeUnit.SECONDS); // XXX initialDelay, period, TimeUnit
+                // XXX Interface ScheduledFuture<V>  extends Future<V>, Delayed(getDelay()) and Comparable<Delayed>
 		
 		// Controlling the execution of tasks
 		for (int i=0; i<10; i++){
-			System.out.printf("Main: Delay: %d\n",result.getDelay(TimeUnit.MILLISECONDS));
+			System.out.printf("Main: Delay: %d\n",result.getDelay(TimeUnit.MILLISECONDS)); // XXX getDelay() see above
 			try {
 				TimeUnit.MILLISECONDS.sleep(500);
 			} catch (InterruptedException e) {
@@ -5866,7 +5720,7 @@ public class Main {
 		// Finish the executor
 		executor.shutdown();
 		System.out.printf("Main: No more tasks at: %s\n",new Date());
-		// Verify that the periodic tasks no is in execution after the executor shutdown()
+		// Verify that the periodic tasks no is in execution after the executor shutdown() (because he's sleeping for 5 units)
 		try {
 			TimeUnit.SECONDS.sleep(5);
 		} catch (InterruptedException e) {
@@ -5881,9 +5735,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe04/src/com/packtpub/java7/concurrency/chapter4/recipe5/task/TaskValidator.java
-package com.packtpub.java7.concurrency.chapter4.recipe5.task;
 
-import java.util.concurrent.Callable;
 
 /**
  * This class encapsulate a user validation system to be executed as a Callable object.
@@ -5891,7 +5743,7 @@ import java.util.concurrent.Callable;
  * it throws an Exception
  *
  */
-public class TaskValidator implements Callable<String> {
+public static class TaskValidator implements Callable<String> {
 
 	/**
 	 * The user validator used to validate the user.
@@ -5939,10 +5791,7 @@ public class TaskValidator implements Callable<String> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe04/src/com/packtpub/java7/concurrency/chapter4/recipe5/task/UserValidator.java
-package com.packtpub.java7.concurrency.chapter4.recipe5.task;
 
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implement a simulation of a user validation system. It suspend the Thread
@@ -5950,7 +5799,7 @@ import java.util.concurrent.TimeUnit;
  * returns the true value when the user is validated and the false value when it's not
  *
  */
-public class UserValidator {
+public static class UserValidator {
 	
 	/**
 	 * The name of the validation system
@@ -5985,7 +5834,7 @@ public class UserValidator {
 		}
 		
 		// Return a random boolean value
-		return random.nextBoolean();
+		return random.nextBoolean(); // XXX
 	}
 	
 	/**
@@ -6000,16 +5849,8 @@ public class UserValidator {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe04/src/com/packtpub/java7/concurrency/chapter4/recipe5/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe5.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import com.packtpub.java7.concurrency.chapter4.recipe5.task.TaskValidator;
-import com.packtpub.java7.concurrency.chapter4.recipe5.task.UserValidator;
 
 /**
  * This is the main class of the example. Creates two user validation systems and execute
@@ -6017,7 +5858,7 @@ import com.packtpub.java7.concurrency.chapter4.recipe5.task.UserValidator;
  * user validation systems, then it shows a message. If both system don't validate the user,
  * the application proccess the ExecutionException throwed by the method
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -6048,7 +5889,7 @@ public class Main {
 			// Send the list of tasks to the executor and waits for the result of the first task 
 			// that finish without throw and Exception. If all the tasks throw and Exception, the
 			// method throws and ExecutionException.
-			result = executor.invokeAny(taskList);
+			result = executor.invokeAny(taskList); // XXX first to finish
 			System.out.printf("Main: Result: %s\n",result);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -6065,9 +5906,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe10/src/com/packtpub/java7/concurrency/chapter4/recipe11/task/ReportRequest.java
-package com.packtpub.java7.concurrency.chapter4.recipe11.task;
 
-import java.util.concurrent.CompletionService;
 
 /**
  * This class represents every actor that can request a report. For this example,
@@ -6075,7 +5914,7 @@ import java.util.concurrent.CompletionService;
  * CompletionService
  *
  */
-public class ReportRequest implements Runnable {
+public static class ReportRequest implements Runnable {
 
 	/**
 	 * Name of this ReportRequest
@@ -6085,14 +5924,14 @@ public class ReportRequest implements Runnable {
 	/**
 	 * CompletionService used for the execution of the ReportGenerator tasks
 	 */
-	private CompletionService<String> service;
+	private java.util.concurrent.CompletionService<String> service;
 	
 	/**
 	 * Constructor of the class. Initializes the parameters
 	 * @param name Name of the ReportRequest
 	 * @param service Service used for the execution of tasks
 	 */
-	public ReportRequest(String name, CompletionService<String> service){
+	public ReportRequest(String name, java.util.concurrent.CompletionService<String> service){
 		this.name=name;
 		this.service=service;
 	}
@@ -6111,10 +5950,7 @@ public class ReportRequest implements Runnable {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe10/src/com/packtpub/java7/concurrency/chapter4/recipe11/task/ReportGenerator.java
-package com.packtpub.java7.concurrency.chapter4.recipe11.task;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class simulates the generation of a report. Is a Callable
@@ -6122,7 +5958,7 @@ import java.util.concurrent.TimeUnit;
  * CompletionService
  *
  */
-public class ReportGenerator implements Callable<String> {
+public static class ReportGenerator implements Callable<String> {
 
 	/**
 	 * The sender of the report
@@ -6164,19 +6000,14 @@ public class ReportGenerator implements Callable<String> {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe10/src/com/packtpub/java7/concurrency/chapter4/recipe11/task/ReportProcessor.java
-package com.packtpub.java7.concurrency.chapter4.recipe11.task;
 
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class will take the results of the ReportGenerator tasks executed through
  * a CompletinoService
  *
  */
-public class ReportProcessor implements Runnable {
+public static class ReportProcessor implements Runnable {
 
 	/**
 	 * CompletionService that executes the ReportGenerator tasks
@@ -6206,11 +6037,11 @@ public class ReportProcessor implements Runnable {
 	public void run() {
 		while (!end){
 			try {
-				Future<String> result=service.poll(20, TimeUnit.SECONDS);
+				Future<String> result=service.poll(20, TimeUnit.SECONDS); // XXX CompletionService<V>.poll() returns Future<V>
 				if (result!=null) {
 					String report=result.get();
 					System.out.printf("ReportReceiver: Report Recived: %s\n",report);
-				}			
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
@@ -6234,30 +6065,23 @@ public class ReportProcessor implements Runnable {
 
 //=*=*=*=*
 //./Chapter_4/ch4_recipe10/src/com/packtpub/java7/concurrency/chapter4/recipe11/core/Main.java
-package com.packtpub.java7.concurrency.chapter4.recipe11.core;
 
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter4.recipe11.task.ReportProcessor;
-import com.packtpub.java7.concurrency.chapter4.recipe11.task.ReportRequest;
 
 /**
  * Main class of the example creates all the necessary objects and throws the tasks
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// Create the executor and thee CompletionService using that executor
-		ExecutorService executor=(ExecutorService)Executors.newCachedThreadPool();
-		CompletionService<String> service=new ExecutorCompletionService<>(executor);
+		ExecutorService executor=(ExecutorService)Executors.newCachedThreadPool(); // XXX cast to ExecutorService un-needed, returns ExecutorService
+		CompletionService<String> service=new ExecutorCompletionService<>(executor); // XXX CompletionService, submission happens to the service
+                // XXX executor itself is used only for shutdown and awaitTermination
 
 		// Crete two ReportRequest objects and two Threads to execute them
 		ReportRequest faceRequest=new ReportRequest("Face", service);
@@ -6302,7 +6126,6 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe03/src/com/packtpub/java7/concurrency/chapter6/recipe04/task/Event.java
-package com.packtpub.java7.concurrency.chapter6.recipe04.task;
 
 /**
  * This class stores the attributes of an event. Its thread
@@ -6310,7 +6133,9 @@ package com.packtpub.java7.concurrency.chapter6.recipe04.task;
  * help the priority queue to decide which event has more priority 
  *
  */
-public class Event implements Comparable<Event> {
+
+/* XXX Comparable defines what is called NATURAL ORDERING */
+public static class Event implements Comparable<Event> {
 	
 	/**
 	 * Number of the thread that generates the event
@@ -6351,6 +6176,7 @@ public class Event implements Comparable<Event> {
 	/**
 	 * Method that compares two events and decide which has more priority
 	 */
+        /* XXX this will sort it in the descending order */
 	@Override
 	public int compareTo(Event e) {
 		if (this.priority>e.getPriority()) {
@@ -6365,16 +6191,14 @@ public class Event implements Comparable<Event> {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe03/src/com/packtpub/java7/concurrency/chapter6/recipe04/task/Task.java
-package com.packtpub.java7.concurrency.chapter6.recipe04.task;
 
-import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * This class implements a generator of events. It generates
  * 1000 events and stores them in a priory queue
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Id of the task
@@ -6411,12 +6235,8 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe03/src/com/packtpub/java7/concurrency/chapter6/recipe04/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe04.core;
 
-import java.util.concurrent.PriorityBlockingQueue;
 
-import com.packtpub.java7.concurrency.chapter6.recipe04.task.Event;
-import com.packtpub.java7.concurrency.chapter6.recipe04.task.Task;
 
 /**
  * Main class of the example. Executes five threads that
@@ -6425,7 +6245,7 @@ import com.packtpub.java7.concurrency.chapter6.recipe04.task.Task;
  * PriorityBlockingQueue class
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -6482,21 +6302,20 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe08/src/com/packtpub/java7/concurrency/chapter6/recipe09/task/Incrementer.java
-package com.packtpub.java7.concurrency.chapter6.recipe09.task;
 
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * This task implements an incrementer. It increments by 1
  * all the elements of an array
  *
  */
-public class Incrementer implements Runnable {
+public static class Incrementer implements Runnable {
 
 	/**
 	 * Array that store the elements to increment
 	 */
-	private AtomicIntegerArray vector; 
+	private AtomicIntegerArray vector; // XXX One object instead of AtomicInteger[], memory organization to avoid adjacent elements mapping to same cache-line
+        // XXX there's also LongIntegerArray no variants for Double
 	
 	/**
 	 * Constructor of the class
@@ -6514,7 +6333,7 @@ public class Incrementer implements Runnable {
 	public void run() {
 		
 		for (int i=0; i<vector.length(); i++){
-			vector.getAndIncrement(i);
+			vector.getAndIncrement(i); // XXX atomic increment, this returns previous value there's also incrementAndGet which returns new value
 		}
 		
 	}
@@ -6523,16 +6342,14 @@ public class Incrementer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe08/src/com/packtpub/java7/concurrency/chapter6/recipe09/task/Decrementer.java
-package com.packtpub.java7.concurrency.chapter6.recipe09.task;
 
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
 /**
  * This task implements a decrementer. It decrements by 1 unit all the
  * elements of an array
  *
  */
-public class Decrementer implements Runnable {
+public static class Decrementer implements Runnable {
 
 	/**
 	 * The array to decrement the elements
@@ -6554,7 +6371,7 @@ public class Decrementer implements Runnable {
 	@Override
 	public void run() {
 		for (int i=0; i<vector.length(); i++) {
-			vector.getAndDecrement(i);
+			vector.getAndDecrement(i); // XXX atomic decrement, this returns previous value there's also decrementAndGet which returns new value
 		}	
 	}
 
@@ -6562,19 +6379,15 @@ public class Decrementer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe08/src/com/packtpub/java7/concurrency/chapter6/recipe09/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe09.core;
 
-import java.util.concurrent.atomic.AtomicIntegerArray;
 
-import com.packtpub.java7.concurrency.chapter6.recipe09.task.Decrementer;
-import com.packtpub.java7.concurrency.chapter6.recipe09.task.Incrementer;
 
 /**
  * Main class of the example. Execute 100 incrementers and 100 decrementers
  * and checks that the results are the expected
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -6636,15 +6449,11 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe02/src/com/packtpub/java7/concurrency/chapter6/recipe02/task/Client.java
-package com.packtpub.java7.concurrency.chapter6.recipe02.task;
 
-import java.util.Date;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
-public class Client implements Runnable{
+public static class Client implements Runnable{
 
-	private LinkedBlockingDeque<String> requestList;
+	private LinkedBlockingDeque<String> requestList; // XXX LinkedBlockingQueue<T>
 	
 	public Client (LinkedBlockingDeque<String> requestList) {
 		this.requestList=requestList;
@@ -6679,13 +6488,8 @@ public class Client implements Runnable{
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe02/src/com/packtpub/java7/concurrency/chapter6/recipe02/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe02.core;
 
-import java.util.Date;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter6.recipe02.task.Client;
 
 /**
  * Main class of the example. First, execute 100 AddTask objects to
@@ -6693,7 +6497,7 @@ import com.packtpub.java7.concurrency.chapter6.recipe02.task.Client;
  * to delete all those elements.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class
@@ -6702,7 +6506,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 
 		// Create a ConcurrentLinkedDeque to work with it in the example
-		LinkedBlockingDeque<String> list=new LinkedBlockingDeque<>(3);
+		LinkedBlockingDeque<String> list=new LinkedBlockingDeque<>(3); // XXX Fixed capacity LBD/LBQ are optionally capacity constrained
 		
 		Client client=new Client(list);
 		Thread thread=new Thread(client);
@@ -6724,22 +6528,25 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe06/src/com/packtpub/java7/concurrency/chapter6/recipe07/task/TaskLocalRandom.java
-package com.packtpub.java7.concurrency.chapter6.recipe07.task;
 
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Task that generates random numbers
  *
  */
-public class TaskLocalRandom implements Runnable {
+public static class TaskLocalRandom implements Runnable {
 
 	/**
 	 * Constructor of the class. Initializes the randoom number generator
 	 * for this task
 	 */
+
+        /* XXX The ThreadLocalRandom class also provides methods to generate long, float, and double
+         * numbers, and Boolean values. There are methods that allow you to provide a number as a
+         * parameter to generate random numbers between zero and that number.  */
+
 	public TaskLocalRandom() {
-		ThreadLocalRandom.current();
+		java.util.concurrent.ThreadLocalRandom.current(); // XXX juc.ThreadLocalRandom
 	}
 	
 	/**
@@ -6758,15 +6565,13 @@ public class TaskLocalRandom implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe06/src/com/packtpub/java7/concurrency/chapter6/recipe07/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe07.core;
 
-import com.packtpub.java7.concurrency.chapter6.recipe07.task.TaskLocalRandom;
 
 /**
  * Main class of the example. It creates three task and execute them
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -6793,18 +6598,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe04/src/com/packtpub/java7/concurrency/chapter6/recipe05/task/Event.java
-package com.packtpub.java7.concurrency.chapter6.recipe05.task;
 
-import java.util.Date;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements an event for a delayed queue.
  *
  */
-public class Event implements Delayed {
-
+public static class Event implements Delayed { // XXX Delayed extends Comparable<Delayed>
+    
 	/**
 	 * Date when we want to activate the event
 	 */
@@ -6822,7 +6623,7 @@ public class Event implements Delayed {
 	 * Method to compare two events
 	 */
 	@Override
-	public int compareTo(Delayed o) {
+	public int compareTo(Delayed o) { // XXX Delayed extends Comparable<Delayed>
 		long result=this.getDelay(TimeUnit.NANOSECONDS)-o.getDelay(TimeUnit.NANOSECONDS);
 		if (result<0) {
 			return -1;
@@ -6846,16 +6647,13 @@ public class Event implements Delayed {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe04/src/com/packtpub/java7/concurrency/chapter6/recipe05/task/Task.java
-package com.packtpub.java7.concurrency.chapter6.recipe05.task;
 
-import java.util.Date;
-import java.util.concurrent.DelayQueue;
 
 /**
  * This class implements a taks that store events in a delayed queue
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Id of the task
@@ -6888,7 +6686,7 @@ public class Task implements Runnable {
 
 		Date now=new Date();
 		Date delay=new Date();
-		delay.setTime(now.getTime()+(id*1000));
+		delay.setTime(now.getTime()+(id*1000)); 
 		
 		System.out.printf("Thread %s: %s\n",id,delay);
 		
@@ -6902,21 +6700,15 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe04/src/com/packtpub/java7/concurrency/chapter6/recipe05/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe05.core;
 
-import java.util.Date;
-import java.util.concurrent.DelayQueue;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter6.recipe05.task.Event;
-import com.packtpub.java7.concurrency.chapter6.recipe05.task.Task;
 
 /**
  * Main method of the example. Execute five tasks and then
  * take the events of the delayed queue when they are activated
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -6967,30 +6759,53 @@ public class Main {
 			} while (event!=null);
 			System.out.printf("At %s you have read %d events\n",new Date(),counter);
 			TimeUnit.MILLISECONDS.sleep(500);
-		} while (queue.size()>0);
+		} while (queue.size()>0); // XXX nested while since we're doing non-blocking poll, error-prone since it assumes event will arrive in 500ms
 	}
 
 }
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe05/src/com/packtpub/java7/concurrency/chapter6/recipe06/task/Task.java
-package com.packtpub.java7.concurrency.chapter6.recipe06.task;
 
-import java.util.concurrent.ConcurrentSkipListMap;
 
-import com.packtpub.java7.concurrency.chapter6.recipe06.util.Contact;
 
 /**
  * This class implements a task that store contacts in a navigable map
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Navigable map to store the contacts
 	 */
-	private ConcurrentSkipListMap<String, Contact> map;
-	
+	private ConcurrentSkipListMap<String, Contact> map; // XXX ConcurrentSkipListMap is a -> ConcurrentNavigableMap -> ConcurrentMap, NavigableMap
+        /* XXX NavigableXXX classes add closest match methods like
+         * lowerEntry/lower,higherEntry/higher, floorEntry/floor, ceilingEntry/ceiling
+         * firstEntry/first, lastEntry/last, pollFirstEntry/pollFirst, pollLastEntry/pollLast,
+         * 
+         * sortedXXX only gives headMap/headSet tailMap/tailSet subSet/Map(from, to),
+         * firstKey/firstEntry first/last()
+         * 
+         * Diff bet ceiling and higher is ceiling is <= and higher is <
+         *
+         */
+
+        /* XXX Both SortedSet and NavigableSet have two implementations, TreeSet and ConcurrentSkipListSet (similarly
+         * for map), Choose ConcurrentSkipListXXX in multi-threaded use case.
+         */
+
+        /* XXX ConcurrentSkipListMap also makes guarantees about the operation time (logn) which ConcurrentHashMap does not. */ 
+
+	/* XXX ConcurrentSkipListSet and ConcurrentSkipListMap are useful when you need a sorted
+           container that will be accessed by multiple threads. These are essentially the
+           equivalents of TreeMap and TreeSet for concurrent code.  The implementation for JDK 6 is
+           based on High Performance Dynamic Lock-Free Hash Tables and List-Based Sets by Maged
+           Michael at IBM, which shows that you can implement a lot of operations on skip lists
+           atomically using compare and swap (CAS) operations. These are lock-free, so you don't
+           have to worry about the overhead of synchronized (for most operations) when you use these
+           classes. */
+
+
 	/**
 	 * Id of the task
 	 */
@@ -7023,13 +6838,12 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe05/src/com/packtpub/java7/concurrency/chapter6/recipe06/util/Contact.java
-package com.packtpub.java7.concurrency.chapter6.recipe06.util;
 
 /**
  * This class implements a Contact to store in the navigable map
  *
  */
-public class Contact {
+public static class Contact {
 
 	/**
 	 * Name of the contact
@@ -7070,14 +6884,8 @@ public class Contact {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe05/src/com/packtpub/java7/concurrency/chapter6/recipe06/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe06.core;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
-import com.packtpub.java7.concurrency.chapter6.recipe06.task.Task;
-import com.packtpub.java7.concurrency.chapter6.recipe06.util.Contact;
 
 /**
  * Main class of the example. It executes twenty-five tasks that
@@ -7085,7 +6893,7 @@ import com.packtpub.java7.concurrency.chapter6.recipe06.util.Contact;
  * of that navigable map
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -7136,14 +6944,14 @@ public class Main {
 		Map.Entry<String, Contact> element;
 		Contact contact;
 		
-		element=map.firstEntry();
+		element=map.firstEntry(); // XXX returns Map.Entry<K,V>
 		contact=element.getValue();
 		System.out.printf("Main: First Entry: %s: %s\n",contact.getName(),contact.getPhone());
 		
 		/*
 		 * Write the last element of the map
 		 */
-		element=map.lastEntry();
+		element=map.lastEntry(); // XXX returns Map.Entry<K,V>
 		contact=element.getValue();
 		System.out.printf("Main: Last Entry: %s: %s\n",contact.getName(),contact.getPhone());
 
@@ -7151,9 +6959,9 @@ public class Main {
 		 * Write a subset of the map 
 		 */
 		System.out.printf("Main: Submap from A1996 to B1002: \n");
-		ConcurrentNavigableMap<String, Contact> submap=map.subMap("A1996", "B1002");
+		ConcurrentNavigableMap<String, Contact> submap=map.subMap("A1996", "B1002"); // XXX similarly subSet for NavigableSet
 		do {
-			element=submap.pollFirstEntry();
+			element=submap.pollFirstEntry(); // XXX
 			if (element!=null) {
 				contact=element.getValue();
 				System.out.printf("%s: %s\n",contact.getName(),contact.getPhone());
@@ -7164,15 +6972,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe07/src/com/packtpub/java7/concurrency/chapter6/recipe08/task/Account.java
-package com.packtpub.java7.concurrency.chapter6.recipe08.task;
 
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class simulate a bank account 
  *
  */
-public class Account {
+public static class Account {
 
 	/**
 	 * Balance of the bank account
@@ -7188,7 +6994,7 @@ public class Account {
 	 * @return the balance of the account
 	 */
 	public long getBalance() {
-		return balance.get();
+		return balance.get(); // XXX AtomicLong.get() returns long
 	}
 
 	/**
@@ -7196,7 +7002,7 @@ public class Account {
 	 * @param balance the new balance of the account
 	 */
 	public void setBalance(long balance) {
-		this.balance.set(balance);
+		this.balance.set(balance); // XXX AtomicLong.set(long)
 	}
 	
 	/**
@@ -7204,7 +7010,7 @@ public class Account {
 	 * @param amount import to add to the balance
 	 */
 	public void addAmount(long amount) {
-		this.balance.getAndAdd(amount);
+		this.balance.getAndAdd(amount); // XXX AtomicLong.getAndAdd()  returns previous value ignored
 	}
 	
 	/**
@@ -7219,14 +7025,13 @@ public class Account {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe07/src/com/packtpub/java7/concurrency/chapter6/recipe08/task/Company.java
-package com.packtpub.java7.concurrency.chapter6.recipe08.task;
 
 /**
  * This class simulates a company that pays a salary an
  * insert money into an account 
  *
  */
-public class Company implements Runnable {
+public static class Company implements Runnable {
 
 	/**
 	 * The account affected by the operations
@@ -7255,14 +7060,13 @@ public class Company implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe07/src/com/packtpub/java7/concurrency/chapter6/recipe08/task/Bank.java
-package com.packtpub.java7.concurrency.chapter6.recipe08.task;
 
 /**
  * This class simulates a bank or a cash dispenser that takes money
  * from an account
  *
  */
-public class Bank implements Runnable {
+public static class Bank implements Runnable {
 
 	/**
 	 * The account affected by the operations
@@ -7292,11 +7096,7 @@ public class Bank implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe07/src/com/packtpub/java7/concurrency/chapter6/recipe08/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe08.core;
 
-import com.packtpub.java7.concurrency.chapter6.recipe08.task.Account;
-import com.packtpub.java7.concurrency.chapter6.recipe08.task.Bank;
-import com.packtpub.java7.concurrency.chapter6.recipe08.task.Company;
 
 
 /**
@@ -7304,7 +7104,7 @@ import com.packtpub.java7.concurrency.chapter6.recipe08.task.Company;
  * to work with the account. The final balance should be equal to the initial, but....
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -7344,15 +7144,56 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe01/src/com/packtpub/java7/concurrency/chapter6/recipe01/task/AddTask.java
-package com.packtpub.java7.concurrency.chapter6.recipe01.task;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
+/*
+ * XXX
+ * Use ConcurrentXXXMap/Set/Queue for concurrent modification by different threads.
+ * XXXBlockingQueue (Linked, Array, Priority) for producer consumer.  A blocking queue without
+ * blocking in the name is SynchronousQueue and (Linked)TransferQueue
+ */
 
+/*
+ * XXX
+ * All Non-Blocking Queues:
+ * ArrayDeque, ConcurrentLinkedQueue
+ * 
+ * All Blocking Queues (all blocking queue implementations are thread-safe):
+ * ArrayBlockingQueue, DelayQueue, LinkedBlockingDeque, LinkedBlockingQueue, LinkedTransferQueue, PriorityBlockingQueue, SynchronousQueue
+ * 
+ * All queues:
+ * ArrayDeque, ConcurrentLinkedQueue, ArrayBlockingQueue, DelayQueue, LinkedBlockingDeque,
+ * LinkedBlockingQueue, LinkedTransferQueue, PriorityBlockingQueue, SynchronousQueue
+ *
+ * Deque gives XXXFirst versions of ARE, OPP (except its not elementFirst but getFirst)
+ * Then there are equivalent methods for existing queue methods XXXLast (except instead of elmentLast its getLast())
+ * element is getFirst()
+ *
+ * Deque: There are stack methods push, pop, peek with equivalents addFirst, removeFirst, peekFirst (I
+ * don't why they made it equivalent to exception throwing methods for first two and special value
+ * method for peekFirst)
+ *
+ * Deque: implementing classes ArrayDeque, ConcurrentLinkedDeque, LinkedBlockingDeque, LinkedList
+ * (only LinkedBlockingQueue can have capacity restriction)
+ * 
+ * JUC:
+ * 
+ * ConcurrentLinkedQueue: thread-safe non-blocking FIFO queue.  
+ * 
+ * BlockingQueue: LinkedBlockingQueue, ArrayBlockingQueue, SynchronousQueue, PriorityBlockingQueue,
+ * and DelayQueue. These cover most common usage contexts for producer-consumer, messaging, parallel
+ * tasking, and related concurrent designs.
+ *
+ * interface TransferQueue =>  LinkedTransferQueue introduce a synchronous
+ * transfer method a producer may optionally block awaiting its consumer.
+ *
+ * BlockingDeque interface extends BlockingQueue =>  LinkedBlockingDeque
+ *
+ */
 /**
  * Task that add 10000 elements to a ConcurrentListDeque
  *
  */
-public class AddTask implements Runnable {
+public static class AddTask implements Runnable {
 
 	/**
 	 * List to add the elements
@@ -7384,15 +7225,13 @@ public class AddTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe01/src/com/packtpub/java7/concurrency/chapter6/recipe01/task/PollTask.java
-package com.packtpub.java7.concurrency.chapter6.recipe01.task;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Task that delete 10000 elements from a ConcurrentListDeque
  *
  */
-public class PollTask implements Runnable {
+public static class PollTask implements Runnable {
 
 	/**
 	 * List to delete the elements
@@ -7426,12 +7265,8 @@ public class PollTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_6/ch6_recipe01/src/com/packtpub/java7/concurrency/chapter6/recipe01/core/Main.java
-package com.packtpub.java7.concurrency.chapter6.recipe01.core;
 
-import java.util.concurrent.ConcurrentLinkedDeque;
 
-import com.packtpub.java7.concurrency.chapter6.recipe01.task.AddTask;
-import com.packtpub.java7.concurrency.chapter6.recipe01.task.PollTask;
 
 /**
  * Main class of the example. First, execute 100 AddTask objects to
@@ -7439,7 +7274,7 @@ import com.packtpub.java7.concurrency.chapter6.recipe01.task.PollTask;
  * to delete all those elements.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class
@@ -7488,14 +7323,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe2/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/TicketOffice2.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class simulates a ticket office. It sell or return tickets
  * for the two cinemas
  *
  */
-public class TicketOffice2 implements Runnable {
+public static class TicketOffice2 implements Runnable {
 
 	/**
 	 * The cinema 
@@ -7529,14 +7363,13 @@ public class TicketOffice2 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe2/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/TicketOffice1.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class simulates a ticket office. It sell or return tickets
  * for the two cinemas
  *
  */
-public class TicketOffice1 implements Runnable {
+public static class TicketOffice1 implements Runnable {
 
 	/**
 	 * The cinema 
@@ -7570,9 +7403,8 @@ public class TicketOffice1 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe2/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Cinema.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
-public class Cinema {
+public static class Cinema {
 	
 	/**
 	 * This two variables store the vacancies in two cinemas
@@ -7673,18 +7505,14 @@ public class Cinema {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe2/src/com/packtpub/java7/concurrency/chapter2/recipe2/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Cinema;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.TicketOffice1;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.TicketOffice2;
 
 /**
  * Core class of the example. Creates a cinema and two threads for
  * the ticket office. Run the threads to analyze the results obtained
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -7723,11 +7551,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe3/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/EventStorage.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * This class implements an Event storage. Producers will storage
@@ -7735,7 +7559,7 @@ import java.util.List;
  * be a java.util.Date object
  *
  */
-public class EventStorage {
+public static class EventStorage {
    
 	/**
 	 * Maximum size of the storage
@@ -7789,13 +7613,12 @@ public class EventStorage {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe3/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Consumer.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class implements a consumer of events.
  *
  */
-public class Consumer implements Runnable {
+public static class Consumer implements Runnable {
 
 	/**
 	 * Store to work with
@@ -7824,13 +7647,12 @@ public class Consumer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe3/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Producer.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class implements a producer of events.
  *
  */
-public class Producer implements Runnable {
+public static class Producer implements Runnable {
 
 	/**
 	 * Store to work with
@@ -7858,16 +7680,12 @@ public class Producer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe3/src/com/packtpub/java7/concurrency/chapter2/recipe2/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Consumer;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.EventStorage;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Producer;
 
 /**
  * Main class of the example
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -7894,18 +7712,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe7/src/com/packtpub/java7/concurrency/chapter2/recipe6/task/Buffer.java
-package com.packtpub.java7.concurrency.chapter2.recipe6.task;
 
-import java.util.LinkedList;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class implements a buffer to stores the simulate file lines between the
  * producer and the consumers
  * 
  */
-public class Buffer {
+public static class Buffer {
 
 	/**
 	 * The buffer
@@ -8019,15 +7833,13 @@ public class Buffer {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe7/src/com/packtpub/java7/concurrency/chapter2/recipe6/task/Consumer.java
-package com.packtpub.java7.concurrency.chapter2.recipe6.task;
 
-import java.util.Random;
 
 /**
  * This class reads line from the buffer and process it
  *
  */
-public class Consumer implements Runnable {
+public static class Consumer implements Runnable {
 
 	/**
 	 * The buffer
@@ -8071,16 +7883,14 @@ public class Consumer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe7/src/com/packtpub/java7/concurrency/chapter2/recipe6/task/Producer.java
-package com.packtpub.java7.concurrency.chapter2.recipe6.task;
 
-import com.packtpub.java7.concurrency.chapter2.recipe6.utils.FileMock;
 
 /**
  * This class gets lines from the simulate file and stores them in the
  * buffer, if there is space in it.
  *
  */
-public class Producer implements Runnable {
+public static class Producer implements Runnable {
 
 	/**
 	 * Simulated File
@@ -8120,18 +7930,13 @@ public class Producer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe7/src/com/packtpub/java7/concurrency/chapter2/recipe6/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe6.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe6.task.Buffer;
-import com.packtpub.java7.concurrency.chapter2.recipe6.task.Consumer;
-import com.packtpub.java7.concurrency.chapter2.recipe6.task.Producer;
-import com.packtpub.java7.concurrency.chapter2.recipe6.utils.FileMock;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -8178,14 +7983,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe7/src/com/packtpub/java7/concurrency/chapter2/recipe6/utils/FileMock.java
-package com.packtpub.java7.concurrency.chapter2.recipe6.utils;
 
 /**
  * This class simulates a text file. It creates a defined number
  * of random lines to process them sequentially.
  *
  */
-public class FileMock {
+public static class FileMock {
 	
 	/**
 	 * Content of the simulate file
@@ -8238,13 +8042,12 @@ public class FileMock {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe4/src/com/packtpub/java7/concurrency/chapter2/recipe3/task/Job.java
-package com.packtpub.java7.concurrency.chapter2.recipe3.task;
 
 /**
  * This class simulates a job that send a document to print.
  *
  */
-public class Job implements Runnable {
+public static class Job implements Runnable {
 
 	/**
 	 * Queue to print the documents
@@ -8273,16 +8076,14 @@ public class Job implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe4/src/com/packtpub/java7/concurrency/chapter2/recipe3/task/PrintQueue.java
-package com.packtpub.java7.concurrency.chapter2.recipe3.task;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+/* XXX INTERNALLY ReentrantLock is implemented over AbstractQueuedSynchronizer */
 
 /**
  * This class simulates a print queue
  *
  */
-public class PrintQueue {
+public static class PrintQueue {
 
 	/**
 	 * Lock to control the access to the queue.
@@ -8310,16 +8111,13 @@ public class PrintQueue {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe4/src/com/packtpub/java7/concurrency/chapter2/recipe3/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe3.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe3.task.Job;
-import com.packtpub.java7.concurrency.chapter2.recipe3.task.PrintQueue;
 
 /**
  * Main class of the example.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class. Run ten jobs in parallel that
@@ -8346,13 +8144,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe5/src/com/packtpub/java7/concurrency/chapter2/recipe4/task/Reader.java
-package com.packtpub.java7.concurrency.chapter2.recipe4.task;
 
 /**
  * This class implements a reader that consults the prices
  *
  */
-public class Reader implements Runnable {
+public static class Reader implements Runnable {
 
 	/**
 	 * Class that stores the prices
@@ -8383,10 +8180,7 @@ public class Reader implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe5/src/com/packtpub/java7/concurrency/chapter2/recipe4/task/PricesInfo.java
-package com.packtpub.java7.concurrency.chapter2.recipe4.task;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class simulates the store of two prices. We will
@@ -8394,7 +8188,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * consult this prices
  *
  */
-public class PricesInfo {
+public static class PricesInfo {
 	
 	/**
 	 * The two prices
@@ -8453,13 +8247,12 @@ public class PricesInfo {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe5/src/com/packtpub/java7/concurrency/chapter2/recipe4/task/Writer.java
-package com.packtpub.java7.concurrency.chapter2.recipe4.task;
 
 /**
  * This class implements a writer that establish the prices
  *
  */
-public class Writer implements Runnable {
+public static class Writer implements Runnable {
 
 	/**
 	 * Class that stores the prices
@@ -8495,17 +8288,13 @@ public class Writer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe5/src/com/packtpub/java7/concurrency/chapter2/recipe4/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe4.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe4.task.PricesInfo;
-import com.packtpub.java7.concurrency.chapter2.recipe4.task.Reader;
-import com.packtpub.java7.concurrency.chapter2.recipe4.task.Writer;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main class of the example
@@ -8541,12 +8330,11 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/chx_recipe1/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Sensor2.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class simulates a sensor in the building
  */
-public class Sensor2 implements Runnable {
+public static class Sensor2 implements Runnable {
 
 	/**
 	 * Object with the statistics of the building
@@ -8577,12 +8365,11 @@ public class Sensor2 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/chx_recipe1/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/Sensor1.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
 /**
  * This class simulates a sensor in the building
  */
-public class Sensor1 implements Runnable {
+public static class Sensor1 implements Runnable {
 
 	/**
 	 * Object with the statistics of the building
@@ -8613,9 +8400,7 @@ public class Sensor1 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/chx_recipe1/src/com/packtpub/java7/concurrency/chapter2/recipe2/task/BuildStats.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -8623,7 +8408,7 @@ import java.util.concurrent.TimeUnit;
  * access to a building, controlling the number of people inside the building
  *
  */
-public class BuildStats {
+public static class BuildStats {
 
 	/**
 	 * Number of people inside the building
@@ -8686,20 +8471,15 @@ public class BuildStats {
 
 //=*=*=*=*
 //./Chapter_2/chx_recipe1/src/com/packtpub/java7/concurrency/chapter2/recipe2/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe2.core;
 
-import java.util.Date;
 
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.BuildStats;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Sensor1;
-import com.packtpub.java7.concurrency.chapter2.recipe2.task.Sensor2;
 
 /**
  * Main class of the example. Creates an object with the statistics of the
  * building and executes two threads that simulates two sensors in the building
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -8744,13 +8524,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_problem/src/com/packtpub/java7/concurrency/chapter2/recipe1/task/Account.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.task;
 
 /**
  * This class simulate a bank account 
  *
  */
-public class Account {
+public static class Account {
 
 	/**
 	 * Balance of the bank account
@@ -8807,14 +8586,13 @@ public class Account {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_problem/src/com/packtpub/java7/concurrency/chapter2/recipe1/task/Company.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.task;
 
 /**
  * This class simulates a company that pays a salary an
  * insert money into an account 
  *
  */
-public class Company implements Runnable {
+public static class Company implements Runnable {
 
 	/**
 	 * The account affected by the operations
@@ -8842,14 +8620,13 @@ public class Company implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_problem/src/com/packtpub/java7/concurrency/chapter2/recipe1/task/Bank.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.task;
 
 /**
  * This class simulates a bank or a cash dispenser that takes money
  * from an account
  *
  */
-public class Bank implements Runnable {
+public static class Bank implements Runnable {
 
 	/**
 	 * The account affected by the operations
@@ -8878,11 +8655,7 @@ public class Bank implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_problem/src/com/packtpub/java7/concurrency/chapter2/recipe1/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe1.task.Account;
-import com.packtpub.java7.concurrency.chapter2.recipe1.task.Bank;
-import com.packtpub.java7.concurrency.chapter2.recipe1.task.Company;
 
 
 /**
@@ -8890,7 +8663,7 @@ import com.packtpub.java7.concurrency.chapter2.recipe1.task.Company;
  * to work with the account. The final balance should be equal to the initial, but....
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -8930,13 +8703,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe6/src/com/packtpub/java7/concurrency/chapter2/recipe5/task/Job.java
-package com.packtpub.java7.concurrency.chapter2.recipe5.task;
 
 /**
  * This class simulates a job that send a document to print
  *
  */
-public class Job implements Runnable {
+public static class Job implements Runnable {
 
 	/**
 	 * The queue to send the documents
@@ -8965,16 +8737,13 @@ public class Job implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe6/src/com/packtpub/java7/concurrency/chapter2/recipe5/task/PrintQueue.java
-package com.packtpub.java7.concurrency.chapter2.recipe5.task;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class simulates a print queue. 
  *
  */
-public class PrintQueue {
+public static class PrintQueue {
 
 	/**
 	 * Creates a lock to control the access to the queue.
@@ -9018,16 +8787,13 @@ public class PrintQueue {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe6/src/com/packtpub/java7/concurrency/chapter2/recipe5/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe5.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe5.task.Job;
-import com.packtpub.java7.concurrency.chapter2.recipe5.task.PrintQueue;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 	
 	/**
 	 * Main method of the example
@@ -9058,13 +8824,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_solution/src/com/packtpub/java7/concurrency/chapter2/recipe1/task/Account.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.task;
 
 /**
  * This class simulates a bank account 
  *
  */
-public class Account {
+public static class Account {
 
 	/**
 	 * Balance of the bank account
@@ -9121,14 +8886,13 @@ public class Account {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_solution/src/com/packtpub/java7/concurrency/chapter2/recipe1/task/Company.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.task;
 
 /**
  * This class simulates a company that pays a salary an
  * insert money into an account 
  *
  */
-public class Company implements Runnable {
+public static class Company implements Runnable {
 	/**
 	 * The account affected by the operations
 	 */
@@ -9155,14 +8919,13 @@ public class Company implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_solution/src/com/packtpub/java7/concurrency/chapter2/recipe1/task/Bank.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.task;
 
 /**
  * This class simulates a bank or a cash dispenser that takes money
  * from an account
  * 
  */
-public class Bank implements Runnable {
+public static class Bank implements Runnable {
 
 	/**
 	 * The account affected by the operations
@@ -9190,18 +8953,14 @@ public class Bank implements Runnable {
 
 //=*=*=*=*
 //./Chapter_2/ch2_recipe1_solution/src/com/packtpub/java7/concurrency/chapter2/recipe1/core/Main.java
-package com.packtpub.java7.concurrency.chapter2.recipe1.core;
 
-import com.packtpub.java7.concurrency.chapter2.recipe1.task.Account;
-import com.packtpub.java7.concurrency.chapter2.recipe1.task.Bank;
-import com.packtpub.java7.concurrency.chapter2.recipe1.task.Company;
 
 /**
  * Main class of the example. It creates an account, a company and a bank
  * to work with the account. The final balance is equal to the initial.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -9241,7 +9000,6 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe09/src/com/packtpub/java7/concurrency/chapter7/recipe09/task/Event.java
-package com.packtpub.java7.concurrency.chapter7.recipe09.task;
 
 /**
  * This class stores the attributes of an event. Its thread
@@ -9249,7 +9007,7 @@ package com.packtpub.java7.concurrency.chapter7.recipe09.task;
  * help the priority queue to decide which event has more priority 
  *
  */
-public class Event implements Comparable<Event> {
+public static class Event implements Comparable<Event> {
 	
 	/**
 	 * Number of the thread that generates the event
@@ -9304,14 +9062,7 @@ public class Event implements Comparable<Event> {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe09/src/com/packtpub/java7/concurrency/chapter7/recipe09/task/MyPriorityTransferQueue.java
-package com.packtpub.java7.concurrency.chapter7.recipe09.task;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TransferQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class implements a priority based transfer queue. It extends the
@@ -9319,7 +9070,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <E> Class of the elements to be stored in the queue
  */
-public class MyPriorityTransferQueue<E> extends PriorityBlockingQueue<E> implements
+public static class MyPriorityTransferQueue<E> extends PriorityBlockingQueue<E> implements
 		TransferQueue<E> {
 
 	/**
@@ -9468,14 +9219,13 @@ public class MyPriorityTransferQueue<E> extends PriorityBlockingQueue<E> impleme
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe09/src/com/packtpub/java7/concurrency/chapter7/recipe09/task/Consumer.java
-package com.packtpub.java7.concurrency.chapter7.recipe09.task;
 
 /**
  *	This class implements the Consumer of the events. There is only
  * one consumer in the example that consumes 1002 events 
  *
  */
-public class Consumer implements Runnable {
+public static class Consumer implements Runnable {
 
 	/**
 	 * Buffer from which the consumer takes the events
@@ -9509,14 +9259,13 @@ public class Consumer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe09/src/com/packtpub/java7/concurrency/chapter7/recipe09/task/Producer.java
-package com.packtpub.java7.concurrency.chapter7.recipe09.task;
 
 /**
  * This class implements the producers of data. It store 100
  * events in the queue with incremental priority
  *
  */
-public class Producer implements Runnable {
+public static class Producer implements Runnable {
 	
 	/**
 	 * Buffer used to store the events
@@ -9547,20 +9296,14 @@ public class Producer implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe09/src/com/packtpub/java7/concurrency/chapter7/recipe09/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe09.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe09.task.Consumer;
-import com.packtpub.java7.concurrency.chapter7.recipe09.task.Event;
-import com.packtpub.java7.concurrency.chapter7.recipe09.task.MyPriorityTransferQueue;
-import com.packtpub.java7.concurrency.chapter7.recipe09.task.Producer;
 
 /**
  * Main class of the example.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -9643,9 +9386,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe02/src/com/packtpub/java7/concurrency/chapter7/recipe02/task/MyPriorityTask.java
-package com.packtpub.java7.concurrency.chapter7.recipe02.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is the base class to implement a priority-based executor. It implements the base for the priority tasks.
@@ -9654,7 +9395,7 @@ import java.util.concurrent.TimeUnit;
  * it will be executed before
  *
  */
-public class MyPriorityTask implements Runnable, Comparable<MyPriorityTask> {
+public static class MyPriorityTask implements Runnable, Comparable<MyPriorityTask> {
 
 	/**
 	 * This attribute stores the priority of the task
@@ -9718,20 +9459,15 @@ public class MyPriorityTask implements Runnable, Comparable<MyPriorityTask> {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe02/src/com/packtpub/java7/concurrency/chapter7/recipe02/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe02.core;
 
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe02.task.MyPriorityTask;
 
 /**
  * Main method of the class. It creates an Executor with a PriorityQueue as working queue and then
  * sends various tasks with different priorities to check that they are executed in the correct order
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -9791,17 +9527,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe01/src/com/packtpub/java7/concurrency/chapter7/recipe01/task/SleepTwoSecondsTask.java
-package com.packtpub.java7.concurrency.chapter7.recipe01.task;
 
-import java.util.Date;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task implemented to test the customized executor
  *
  */
-public class SleepTwoSecondsTask implements Callable<String> {
+public static class SleepTwoSecondsTask implements Callable<String> {
 
 	/**
 	 * Main method of the tasks. It only sleeps the current thread for two seconds
@@ -9815,16 +9547,7 @@ public class SleepTwoSecondsTask implements Callable<String> {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe01/src/com/packtpub/java7/concurrency/chapter7/recipe01/executor/MyExecutor.java
-package com.packtpub.java7.concurrency.chapter7.recipe01.executor;
 
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class extends the ThreadPoolExecutor class to implement a customized executor.
@@ -9832,7 +9555,7 @@ import java.util.concurrent.TimeUnit;
  * show statistics about the tasks executed by the Executor
  * 
  */
-public class MyExecutor extends ThreadPoolExecutor {
+public static class MyExecutor extends ThreadPoolExecutor {
 
 	/**
 	 * A HashMap to store the start date of the tasks executed by the executor. When 
@@ -9913,23 +9636,14 @@ public class MyExecutor extends ThreadPoolExecutor {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe01/src/com/packtpub/java7/concurrency/chapter7/recipe01/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe01.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe01.executor.MyExecutor;
-import com.packtpub.java7.concurrency.chapter7.recipe01.task.SleepTwoSecondsTask;
 
 /**
  * Main clas of the example. It creates a custom executor and executes 10 tasks in it
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -10003,19 +9717,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe08/src/com/packtpub/java7/concurrency/chapter7/recipe08/task/MyLock.java
-package com.packtpub.java7.concurrency.chapter7.recipe08.task;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
 
 /**
  * This class implements a basic Lock. It uses a myAbstractQueueSyncrhonized object
  * as the element from which implement the methods of the lock. 
  *
  */
-public class MyLock implements Lock{
+public static class MyLock implements Lock{
 
 	/**
 	 * Synchronizer to implement the operations of the locks
@@ -10095,15 +9804,13 @@ public class MyLock implements Lock{
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe08/src/com/packtpub/java7/concurrency/chapter7/recipe08/task/Task.java
-package com.packtpub.java7.concurrency.chapter7.recipe08.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class implements a Task that uses the Lock
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 	
 	/**
 	 * Lock used by the task
@@ -10147,10 +9854,7 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe08/src/com/packtpub/java7/concurrency/chapter7/recipe08/task/MyAbstractQueuedSynchronizer.java
-package com.packtpub.java7.concurrency.chapter7.recipe08.task;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
  * This class extends the AbstractQueueSynchronizer class to implement
@@ -10160,7 +9864,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
  * are the starting point for the Lock implementation
  *
  */
-public class MyAbstractQueuedSynchronizer extends AbstractQueuedSynchronizer {
+public static class MyAbstractQueuedSynchronizer extends AbstractQueuedSynchronizer {
 
 	/**
 	 * Serial version UID of the class
@@ -10200,18 +9904,14 @@ public class MyAbstractQueuedSynchronizer extends AbstractQueuedSynchronizer {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe08/src/com/packtpub/java7/concurrency/chapter7/recipe08/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe08.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe08.task.MyLock;
-import com.packtpub.java7.concurrency.chapter7.recipe08.task.Task;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -10264,9 +9964,6 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe07/src/com/packtpub/java7/concurrency/chapter7/reciper07/task/MyWorkerTask.java
-package com.packtpub.java7.concurrency.chapter7.reciper07.task;
-import java.util.Date;
-import java.util.concurrent.ForkJoinTask;
 
 /**
  * This class extends the ForkJoinTask class to implement your own version of a task running 
@@ -10345,14 +10042,13 @@ public abstract class MyWorkerTask extends ForkJoinTask<Void> {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe07/src/com/packtpub/java7/concurrency/chapter7/reciper07/task/Task.java
-package com.packtpub.java7.concurrency.chapter7.reciper07.task;
 
 /**
  * Task that extends the MyWorkerTask class to be executed
  * in a Fork/Join framework
  *
  */
-public class Task extends MyWorkerTask {
+public static class Task extends MyWorkerTask {
 
 	/**
 	 * Serival Version UID of the task
@@ -10415,17 +10111,14 @@ public class Task extends MyWorkerTask {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe07/src/com/packtpub/java7/concurrency/chapter7/reciper07/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.reciper07.core;
 
-import java.util.concurrent.ForkJoinPool;
 
-import com.packtpub.java7.concurrency.chapter7.reciper07.task.Task;
 
 /**
  * Main class of the example. It creates a ForkJoinPool and a 
  * Task and executes the task in the pool
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -10468,16 +10161,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe04/src/com/packtpub/java7/concurrency/chapter7/recipe04/task/MyTask.java
-package com.packtpub.java7.concurrency.chapter7.recipe04.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task to check the MyThread and MyThreadFactory classes. It sleeps
  * the thread for two seconds
  *
  */
-public class MyTask implements Runnable {
+public static class MyTask implements Runnable {
 
 	/**
 	 * Main method of the task. It sleeps the thread for two seconds
@@ -10495,9 +10186,7 @@ public class MyTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe04/src/com/packtpub/java7/concurrency/chapter7/recipe04/task/MyThread.java
-package com.packtpub.java7.concurrency.chapter7.recipe04.task;
 
-import java.util.Date;
 
 /**
  * This class implement your own Thread. It stores the creation date, the
@@ -10505,7 +10194,7 @@ import java.util.Date;
  * calculates the execution time of the thread. Overrides the toString() method
  * to return information about the creationDate and the execution time of the thread
  */
-public class MyThread extends Thread {
+public static class MyThread extends Thread {
 	
 	/**
 	 * Creation date of the thread
@@ -10595,16 +10284,14 @@ public class MyThread extends Thread {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe04/src/com/packtpub/java7/concurrency/chapter7/recipe04/task/MyThreadFactory.java
-package com.packtpub.java7.concurrency.chapter7.recipe04.task;
 
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Factory to create our kind of threads. Implement the
  * ThreadFactory interface.  
  *
  */
-public class MyThreadFactory implements ThreadFactory {
+public static class MyThreadFactory implements ThreadFactory {
 
 	/**
 	 * Attribute to store the number of threads created by the Factory
@@ -10639,21 +10326,15 @@ public class MyThreadFactory implements ThreadFactory {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe04/src/com/packtpub/java7/concurrency/chapter7/recipe04/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe04.core;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe04.task.MyThreadFactory;
-import com.packtpub.java7.concurrency.chapter7.recipe04.task.MyTask;
 
 /**
  * Main class of the example. Creates a Factory, an Executor using
  * that factory and submits a task to the executor
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -10704,10 +10385,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe06/src/com/packtpub/java7/concurrency/chapter7/recipe06/task/MyWorkerThread.java
-package com.packtpub.java7.concurrency.chapter7.recipe06.task;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
 
 /**
  * This class implements a custom thread for the Fork/Join framework. It extends the
@@ -10716,7 +10394,7 @@ import java.util.concurrent.ForkJoinWorkerThread;
  * executed in it
  *
  */
-public class MyWorkerThread extends ForkJoinWorkerThread {
+public static class MyWorkerThread extends ForkJoinWorkerThread {
 
 	/**
 	 * ThreadLocal attribute to store the number of tasks executed by each thread
@@ -10766,18 +10444,14 @@ public class MyWorkerThread extends ForkJoinWorkerThread {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe06/src/com/packtpub/java7/concurrency/chapter7/recipe06/task/MyRecursiveTask.java
-package com.packtpub.java7.concurrency.chapter7.recipe06.task;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.RecursiveTask;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Task that will be executed in the Fork/Join framework. It calculates 
  * the sum of all array elements
  *
  */
-public class MyRecursiveTask extends RecursiveTask<Integer> {
+public static class MyRecursiveTask extends RecursiveTask<Integer> {
 
 	/**
 	 * Serial Version UID
@@ -10865,18 +10539,14 @@ public class MyRecursiveTask extends RecursiveTask<Integer> {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe06/src/com/packtpub/java7/concurrency/chapter7/recipe06/task/MyWorkerThreadFactory.java
-package com.packtpub.java7.concurrency.chapter7.recipe06.task;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
 
 /**
  * Factory to be used by the Fork/Join framework to create the worker threads. Implements
  * the ForkJoinWorkerThreadFactory interface
  *
  */
-public class MyWorkerThreadFactory implements ForkJoinWorkerThreadFactory {
+public static class MyWorkerThreadFactory implements ForkJoinWorkerThreadFactory {
 
 	/**
 	 * Method that creates a worker thread for the Fork/Join framework
@@ -10892,20 +10562,15 @@ public class MyWorkerThreadFactory implements ForkJoinWorkerThreadFactory {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe06/src/com/packtpub/java7/concurrency/chapter7/recipe06/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe06.core;
 
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe06.task.MyRecursiveTask;
-import com.packtpub.java7.concurrency.chapter7.recipe06.task.MyWorkerThreadFactory;
 
 /**
  * Main class of the example. It creates an array of 100000 elements, initializes all
  * the elements to the 1 value, creates a new ForkJoinPool with the new 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -10972,14 +10637,7 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe05/src/com/packtpub/java7/concurrency/chapter7/recipe05/task/MyScheduledTask.java
-package com.packtpub.java7.concurrency.chapter7.recipe05.task;
 
-import java.util.Date;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -10992,7 +10650,7 @@ import java.util.concurrent.TimeUnit;
  * @param <V> Type of data that will be returned by the task
  * 
  */
-public class MyScheduledTask<V> extends FutureTask<V> implements RunnableScheduledFuture<V> {
+public static class MyScheduledTask<V> extends FutureTask<V> implements RunnableScheduledFuture<V> {
 
 	/**
 	 * Attribute to store the task that will be used to create a MyScheduledTask
@@ -11095,15 +10753,13 @@ public class MyScheduledTask<V> extends FutureTask<V> implements RunnableSchedul
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe05/src/com/packtpub/java7/concurrency/chapter7/recipe05/task/Task.java
-package com.packtpub.java7.concurrency.chapter7.recipe05.task;
 
-import java.util.concurrent.TimeUnit;
 
 /**
  * Runnable object to check the MyScheduledTask and MyScheduledThreadPoolExecutor classes.
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	/**
 	 * Main method of the task. Writes a message, sleeps the current thread for two seconds and
@@ -11124,19 +10780,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe05/src/com/packtpub/java7/concurrency/chapter7/recipe05/task/MyScheduledThreadPoolExecutor.java
-package com.packtpub.java7.concurrency.chapter7.recipe05.task;
 
-import java.util.concurrent.RunnableScheduledFuture;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Our implementation of an ScheduledThreadPoolExecutor two executes MyScheduledTasks tasks. It extends
  * the ScheduledThreadPoolExecutor class
  *
  */
-public class MyScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {
+public static class MyScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
 	/**
 	 * Constructor of the class. Calls the constructor of its parent class using the super keyword
@@ -11175,19 +10826,14 @@ public class MyScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe05/src/com/packtpub/java7/concurrency/chapter7/recipe05/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe05.core;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter7.recipe05.task.MyScheduledThreadPoolExecutor;
-import com.packtpub.java7.concurrency.chapter7.recipe05.task.Task;
 
 /**
  * Main class of the example. Creates a MyScheduledThreadPoolExecutor and
  * executes a delayed task and a periodic task in it.
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -11260,13 +10906,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe10/src/com/packtpub/java7/concurrency/chapter7/recipe10/task/Sensor2.java
-package com.packtpub.java7.concurrency.chapter7.recipe10.task;
 
 /**
  * Class that simulates a sensor in the doors of the parking
  *
  */
-public class Sensor2 implements Runnable {
+public static class Sensor2 implements Runnable {
 
 	/**
 	 * Counter of cars in the parking
@@ -11301,13 +10946,12 @@ public class Sensor2 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe10/src/com/packtpub/java7/concurrency/chapter7/recipe10/task/Sensor1.java
-package com.packtpub.java7.concurrency.chapter7.recipe10.task;
 
 /**
  * Class that simulates a sensor in the doors of the parking
  *
  */
-public class Sensor1 implements Runnable {
+public static class Sensor1 implements Runnable {
 
 	/**
 	 * Counter of cars in the parking
@@ -11344,16 +10988,14 @@ public class Sensor1 implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe10/src/com/packtpub/java7/concurrency/chapter7/recipe10/task/ParkingCounter.java
-package com.packtpub.java7.concurrency.chapter7.recipe10.task;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class implements an atomic object extending the
  * AtomicInteger class and  providing two additional operations
  *  
  */
-public class ParkingCounter extends AtomicInteger {
+public static class ParkingCounter extends AtomicInteger {
 
 	/**
 	 * Serial Version UID of the class 
@@ -11425,17 +11067,13 @@ public class ParkingCounter extends AtomicInteger {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe10/src/com/packtpub/java7/concurrency/chapter7/recipe10/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe10.core;
 
-import com.packtpub.java7.concurrency.chapter7.recipe10.task.ParkingCounter;
-import com.packtpub.java7.concurrency.chapter7.recipe10.task.Sensor1;
-import com.packtpub.java7.concurrency.chapter7.recipe10.task.Sensor2;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -11478,16 +11116,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe03/src/com/packtpub/java7/concurrency/chapter7/recipe03/task/MyTask.java
-package com.packtpub.java7.concurrency.chapter7.recipe03.task;
 
-import java.util.concurrent.TimeUnit;
 
 
 /**
  * Task to be executed in the MyThread threads
  *
  */
-public class MyTask implements Runnable {
+public static class MyTask implements Runnable {
 
 	/**
 	 * Main method of the Thread. Sleeps the thread during two seconds
@@ -11505,15 +11141,13 @@ public class MyTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe03/src/com/packtpub/java7/concurrency/chapter7/recipe03/task/MyThread.java
-package com.packtpub.java7.concurrency.chapter7.recipe03.task;
 
-import java.util.Date;
 
 /**
  * This class extends the Thread class calculating its execution time
  *
  */
-public class MyThread extends Thread {
+public static class MyThread extends Thread {
 	
 	/**
 	 * Creation date of the Thread
@@ -11598,15 +11232,13 @@ public class MyThread extends Thread {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe03/src/com/packtpub/java7/concurrency/chapter7/recipe03/task/MyThreadFactory.java
-package com.packtpub.java7.concurrency.chapter7.recipe03.task;
 
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Factory to create MyThread objects
  *
  */
-public class MyThreadFactory implements ThreadFactory {
+public static class MyThreadFactory implements ThreadFactory {
 
 	/**
 	 * Attribute to store the number of threads created in this factory
@@ -11641,17 +11273,14 @@ public class MyThreadFactory implements ThreadFactory {
 
 //=*=*=*=*
 //./Chapter_7/ch7_recipe03/src/com/packtpub/java7/concurrency/chapter7/recipe03/core/Main.java
-package com.packtpub.java7.concurrency.chapter7.recipe03.core;
 
-import com.packtpub.java7.concurrency.chapter7.recipe03.task.MyThreadFactory;
-import com.packtpub.java7.concurrency.chapter7.recipe03.task.MyTask;
 
 /**
  * Main class of the example. Creates a factory, a MyThread object to execute a Task object
  * and executes the Thread
  * 	
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -11695,12 +11324,9 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe02/src/com/packtpub/java7/concurrency/chapter9/recipe02/GoodLocks.java
-package com.packtpub.java7.concurrency.chapter9.recipe02;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
-public class GoodLocks {
+public static class GoodLocks {
 	private Lock lock1, lock2;
 	
 	public GoodLocks(Lock lock1, Lock lock2) {
@@ -11740,12 +11366,9 @@ public class GoodLocks {
 
 //=*=*=*=*
 //./Appendix/app_recipe02/src/com/packtpub/java7/concurrency/chapter9/recipe02/BadLocks.java
-package com.packtpub.java7.concurrency.chapter9.recipe02;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
-public class BadLocks {
+public static class BadLocks {
 
 	private Lock lock1, lock2;
 	
@@ -11788,11 +11411,9 @@ public class BadLocks {
 
 //=*=*=*=*
 //./Appendix/app_recipe08/src/com/packtpub/java7/concurrency/chapter9/recipe09/task/Task.java
-package com.packtpub.java7.concurrency.chapter9.recipe09.task;
 
-import java.util.concurrent.TimeUnit;
 
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	private int array[];
 	
@@ -11816,12 +11437,9 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe08/src/com/packtpub/java7/concurrency/chapter9/recipe09/task/TaskFJ.java
-package com.packtpub.java7.concurrency.chapter9.recipe09.task;
 
-import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.TimeUnit;
 
-public class TaskFJ extends RecursiveAction {
+public static class TaskFJ extends RecursiveAction {
 
 
 	private static final long serialVersionUID = 1L;
@@ -11860,19 +11478,10 @@ public class TaskFJ extends RecursiveAction {
 
 //=*=*=*=*
 //./Appendix/app_recipe08/src/com/packtpub/java7/concurrency/chapter9/recipe09/core/Main.java
-package com.packtpub.java7.concurrency.chapter9.recipe09.core;
 
-import java.util.Date;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter9.recipe09.task.Task;
-import com.packtpub.java7.concurrency.chapter9.recipe09.task.TaskFJ;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -11913,9 +11522,8 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe01/src/com/packtpub/java7/concurrency/chapter9/recipe01/PersonMutable.java
-package com.packtpub.java7.concurrency.chapter9.recipe01;
 
-public class PersonMutable {
+public static class PersonMutable {
 	private String firstName;
 	private String lastName;
 	
@@ -11939,7 +11547,6 @@ public class PersonMutable {
 
 //=*=*=*=*
 //./Appendix/app_recipe01/src/com/packtpub/java7/concurrency/chapter9/recipe01/PersonImmutable.java
-package com.packtpub.java7.concurrency.chapter9.recipe01;
 
 public final class PersonImmutable {
 	
@@ -11963,11 +11570,9 @@ public final class PersonImmutable {
 
 //=*=*=*=*
 //./Appendix/app_recipe03/src/com/packtpub/java7/concurrency/chapter9/recipe03/task/TaskAtomic.java
-package com.packtpub.java7.concurrency.chapter9.recipe03.task;
 
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class TaskAtomic implements Runnable {
+public static class TaskAtomic implements Runnable {
 
 	private AtomicInteger number;
 	
@@ -11986,12 +11591,9 @@ public class TaskAtomic implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe03/src/com/packtpub/java7/concurrency/chapter9/recipe03/task/TaskLock.java
-package com.packtpub.java7.concurrency.chapter9.recipe03.task;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class TaskLock implements Runnable {
+public static class TaskLock implements Runnable {
 
 	private Lock lock;
 	private int number;
@@ -12015,14 +11617,10 @@ public class TaskLock implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe03/src/com/packtpub/java7/concurrency/chapter9/recipe03/core/Main.java
-package com.packtpub.java7.concurrency.chapter9.recipe03.core;
 
-import java.util.Date;
 
-import com.packtpub.java7.concurrency.chapter9.recipe03.task.TaskAtomic;
-import com.packtpub.java7.concurrency.chapter9.recipe03.task.TaskLock;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -12076,16 +11674,9 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe09/src/com/packtpub/java7/concurrency/chapter9/recipe10/task/Task.java
-package com.packtpub.java7.concurrency.chapter9.recipe10.task;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
-public class Task implements Runnable {
+public static class Task implements Runnable {
 	
 	private Lock lock;
 	
@@ -12127,13 +11718,10 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe09/src/com/packtpub/java7/concurrency/chapter9/recipe10/core/Main.java
-package com.packtpub.java7.concurrency.chapter9.recipe10.core;
 
-import java.util.concurrent.locks.ReentrantLock;
 
-import com.packtpub.java7.concurrency.chapter9.recipe10.task.Task;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -12151,11 +11739,9 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe07/src/com/packtpub/java7/concurrncy/chapter9/recipe10/task/Task.java
-package com.packtpub.java7.concurrncy.chapter9.recipe10.task;
 
-import com.packtpub.java7.concurrncy.chapter9.recipe10.util.DBConnectionOK;
 
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	@Override
 	public void run() {
@@ -12169,9 +11755,8 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe07/src/com/packtpub/java7/concurrncy/chapter9/recipe10/util/DBConnection.java
-package com.packtpub.java7.concurrncy.chapter9.recipe10.util;
 
-public class DBConnection {
+public static class DBConnection {
 
 	private static DBConnection connection;
 	
@@ -12189,9 +11774,8 @@ public class DBConnection {
 
 //=*=*=*=*
 //./Appendix/app_recipe07/src/com/packtpub/java7/concurrncy/chapter9/recipe10/util/DBConnectionOK.java
-package com.packtpub.java7.concurrncy.chapter9.recipe10.util;
 
-public class DBConnectionOK {
+public static class DBConnectionOK {
 
 	private DBConnectionOK() {
 		System.out.printf("%s: Connection created.\n",Thread.currentThread().getName());
@@ -12209,11 +11793,9 @@ public class DBConnectionOK {
 
 //=*=*=*=*
 //./Appendix/app_recipe07/src/com/packtpub/java7/concurrncy/chapter9/recipe10/core/Main.java
-package com.packtpub.java7.concurrncy.chapter9.recipe10.core;
 
-import com.packtpub.java7.concurrncy.chapter9.recipe10.task.Task;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -12231,9 +11813,8 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe05/src/com/packtpub/java7/concurrency/chapter9/recipe06/task/Task.java
-package com.packtpub.java7.concurrency.chapter9.recipe06.task;
 
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	@Override
 	public void run() {
@@ -12250,16 +11831,10 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe05/src/com/packtpub/java7/concurrency/chapter9/recipe06/core/Main.java
-package com.packtpub.java7.concurrency.chapter9.recipe06.core;
 
-import java.util.Date;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter9.recipe06.task.Task;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -12307,13 +11882,10 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe04/src/com/packtpub/java7/concurrency/chapter9/recipe05/task/Task2.java
-package com.packtpub.java7.concurrency.chapter9.recipe05.task;
 
-import java.util.concurrent.locks.Lock;
 
-import com.packtpub.java7.concurrency.chapter9.recipe05.utils.Operations;
 
-public class Task2 implements Runnable {
+public static class Task2 implements Runnable {
 
 	private Lock lock;
 	
@@ -12335,13 +11907,10 @@ public class Task2 implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe04/src/com/packtpub/java7/concurrency/chapter9/recipe05/task/Task1.java
-package com.packtpub.java7.concurrency.chapter9.recipe05.task;
 
-import java.util.concurrent.locks.Lock;
 
-import com.packtpub.java7.concurrency.chapter9.recipe05.utils.Operations;
 
-public class Task1 implements Runnable {
+public static class Task1 implements Runnable {
 
 	private Lock lock;
 	
@@ -12362,16 +11931,10 @@ public class Task1 implements Runnable {
 
 //=*=*=*=*
 //./Appendix/app_recipe04/src/com/packtpub/java7/concurrency/chapter9/recipe05/core/Main.java
-package com.packtpub.java7.concurrency.chapter9.recipe05.core;
 
-import java.util.Date;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-import com.packtpub.java7.concurrency.chapter9.recipe05.task.Task1;
-import com.packtpub.java7.concurrency.chapter9.recipe05.task.Task2;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -12423,11 +11986,9 @@ public class Main {
 
 //=*=*=*=*
 //./Appendix/app_recipe04/src/com/packtpub/java7/concurrency/chapter9/recipe05/utils/Operations.java
-package com.packtpub.java7.concurrency.chapter9.recipe05.utils;
 
-import java.util.concurrent.TimeUnit;
 
-public class Operations {
+public static class Operations {
 	
 	public static void readData(){
 		try {
@@ -12456,19 +12017,15 @@ public class Operations {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe07/src/com/packtpub/java7/concurrency/chapter1/recipe7/task/CleanerTask.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.task;
 
-import java.util.Date;
-import java.util.Deque;
 
-import com.packtpub.java7.concurrency.chapter1.recipe7.event.Event;
 
 /**
  * Class that review the Event data structure and delete
  * the events older than ten seconds
  *
  */
-public class CleanerTask extends Thread {
+public static class CleanerTask extends Thread {
 
 	/**
 	 * Data structure that stores events
@@ -12528,19 +12085,14 @@ public class CleanerTask extends Thread {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe07/src/com/packtpub/java7/concurrency/chapter1/recipe7/task/WriterTask.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.task;
 
-import java.util.Date;
-import java.util.Deque;
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe7.event.Event;
 
 /**
  * Runnable class that generates and event every second
  *
  */
-public class WriterTask implements Runnable {
+public static class WriterTask implements Runnable {
 
 	/**
 	 * Data structure to stores the events
@@ -12582,15 +12134,13 @@ public class WriterTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe07/src/com/packtpub/java7/concurrency/chapter1/recipe7/event/Event.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.event;
 
-import java.util.Date;
 
 /**
  * Class that stores event's information 
  *
  */
-public class Event {
+public static class Event {
 
 	/**
 	 * Date of the event
@@ -12637,20 +12187,14 @@ public class Event {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe07/src/com/packtpub/java7/concurrency/chapter1/recipe7/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.core;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 
-import com.packtpub.java7.concurrency.chapter1.recipe7.event.Event;
-import com.packtpub.java7.concurrency.chapter1.recipe7.task.CleanerTask;
-import com.packtpub.java7.concurrency.chapter1.recipe7.task.WriterTask;
 
 /**
  * Main class of the example. Creates three WriterTaks and a CleanerTask 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example. Creates three WriterTasks and a CleanerTask
@@ -12678,13 +12222,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe02/src/com/packtpub/java7/concurrency/chapter1/recipe2/task/Calculator.java
-package com.packtpub.java7.concurrency.chapter1.recipe2.task;
 
 /**
  * This class prints the multiplication table of a number
  *
  */
-public class Calculator implements Runnable {
+public static class Calculator implements Runnable {
 
 	/**
 	 *  The number
@@ -12713,19 +12256,13 @@ public class Calculator implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe02/src/com/packtpub/java7/concurrency/chapter1/recipe2/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe2.core;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.Thread.State;
 
-import com.packtpub.java7.concurrency.chapter1.recipe2.task.Calculator;
 
 /**
  *  Main class of the example
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -12807,11 +12344,9 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe12/src/com/packtpub/java7/concurrency/chapter1/recipe12/task/Task.java
-package com.packtpub.java7.concurrency.chapter1.recipe12.task;
 
-import java.util.concurrent.TimeUnit;
 
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	@Override
 	public void run() {
@@ -12826,20 +12361,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe12/src/com/packtpub/java7/concurrency/chapter1/recipe12/factory/MyThreadFactory.java
-package com.packtpub.java7.concurrency.chapter1.recipe12.factory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Class that implements the ThreadFactory interface to
  * create a basic thread factory
  *
  */
-public class MyThreadFactory implements ThreadFactory {
+public static class MyThreadFactory implements ThreadFactory {
 
 	// Attributes to save the necessary data to the factory
 	private int counter;
@@ -12889,17 +12418,14 @@ public class MyThreadFactory implements ThreadFactory {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe12/src/com/packtpub/java7/concurrency/chapter1/recipe12/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe12.core;
 
-import com.packtpub.java7.concurrency.chapter1.recipe12.factory.MyThreadFactory;
-import com.packtpub.java7.concurrency.chapter1.recipe12.task.Task;
 
 /**
  * Main class of the example. Creates a Thread factory and creates ten 
  * Thread objects using that Factory 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example. Creates a Thread factory and creates 
@@ -12929,14 +12455,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe04/src/com/packtpub/java7/concurrency/chapter1/recipe4/task/FileSearch.java
-package com.packtpub.java7.concurrency.chapter1.recipe4.task;
 
-import java.io.File;
 
 /**
  * This class search for files with a name in a directory
  */
-public class FileSearch implements Runnable {
+public static class FileSearch implements Runnable {
 
 	/**
 	 * Initial path for the search
@@ -12970,6 +12494,25 @@ public class FileSearch implements Runnable {
 			try {
 				directoryProcess(file);
 			} catch (InterruptedException e) {
+                            /* 
+                             * Why throwing InterruptedException clear threads interrupted status??
+                             *
+                             * The idea is that an interrupt should be
+                             * handled once. If an explicit
+                             * InterruptedException did not clear the
+                             * "interrupt" flag then most catchers for
+                             * InterruptedException would have to
+                             * explicitly clear that flag. Conversely,
+                             * you can "unclear" the flag by
+                             * self-interruption
+                             * (Thread.currentThread().interrupt()). Java's
+                             * designers went for the semantics which
+                             * would save keystrokes most of the time
+                             * (i.e. you more often want to clear the
+                             * flag than keep it set).
+                             */
+
+                            /* InterruptedException should always be rethrown */
 				System.out.printf("%s: The search has been interrupted",Thread.currentThread().getName());
 				cleanResources();
 			}
@@ -13008,7 +12551,7 @@ public class FileSearch implements Runnable {
 		}
 		// Check the interruption
 		if (Thread.interrupted()) {
-			throw new InterruptedException();
+			throw new InterruptedException(); // XXX
 		}
 	}
 
@@ -13026,6 +12569,14 @@ public class FileSearch implements Runnable {
 			System.out.printf("%s : %s\n",Thread.currentThread().getName() ,file.getAbsolutePath());
 		}
 
+                /* There is an important difference between the
+                 * isInterrupted() and the interrupted() methods. The
+                 * first one doesn't change the value of the
+                 * interrupted attribute, but the second one sets it
+                 * to false. As the interrupted() method is a static
+                 * method, the utilization of the isInterrupted()
+                 * method is recommended. */
+
 		// Check the interruption
 		if (Thread.interrupted()) {
 			throw new InterruptedException();
@@ -13036,18 +12587,15 @@ public class FileSearch implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe04/src/com/packtpub/java7/concurrency/chapter1/recipe4/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe4.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe4.task.FileSearch;
 
 /**
  *  Main class of the example. Search for the autoexect.bat file
  *  on the Windows root folder and its subfolders during ten seconds
  *  and then, interrupts the Thread
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the core. Search for the autoexect.bat file
@@ -13078,17 +12626,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe09/src/com/packtpub/java7/concurrency/chapter1/recipe7/task/SafeTask.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class that shows the usage of ThreadLocal variables to share
  * data between Thread objects
  *
  */
-public class SafeTask implements Runnable {
+public static class SafeTask implements Runnable {
 
 	/**
 	 * ThreadLocal shared between the Thread objects
@@ -13120,17 +12665,14 @@ public class SafeTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe09/src/com/packtpub/java7/concurrency/chapter1/recipe7/task/UnsafeTask.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class that shows the problem generate when some Thread objects
  * share a data structure
  *
  */
-public class UnsafeTask implements Runnable{
+public static class UnsafeTask implements Runnable{
 
 	/**
 	 * Date shared by all threads
@@ -13157,18 +12699,15 @@ public class UnsafeTask implements Runnable{
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe09/src/com/packtpub/java7/concurrency/chapter1/recipe7/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe7.task.UnsafeTask;
 
 /**
  * Main class of the UnsafeTask. Creates a Runnable task and
  * three Thread objects that run it.
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the UnsafeTaks. Creates a Runnable task and
@@ -13194,17 +12733,14 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe09/src/com/packtpub/java7/concurrency/chapter1/recipe7/core/SafeMain.java
-package com.packtpub.java7.concurrency.chapter1.recipe7.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe7.task.SafeTask;
 
 /**
  * Main class of the example.
  *
  */
-public class SafeMain {
+public static class SafeMain {
 
 	/**
 	 * Main method of the example
@@ -13231,15 +12767,13 @@ public class SafeMain {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe08/src/com/packtpub/java7/concurrency/chapter1/recipe8/handler/ExceptionHandler.java
-package com.packtpub.java7.concurrency.chapter1.recipe8.handler;
 
-import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
  * Class that process the uncaught exceptions throwed in a Thread
  *
  */
-public class ExceptionHandler implements UncaughtExceptionHandler {
+public static class ExceptionHandler implements UncaughtExceptionHandler {
 
 
 	/**
@@ -13262,13 +12796,12 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe08/src/com/packtpub/java7/concurrency/chapter1/recipe8/task/Task.java
-package com.packtpub.java7.concurrency.chapter1.recipe8.task;
 
 /**
  * Runnable class than throws and Exception
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 
 	/**
@@ -13284,17 +12817,14 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe08/src/com/packtpub/java7/concurrency/chapter1/recipe8/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe8.core;
 
-import com.packtpub.java7.concurrency.chapter1.recipe8.handler.ExceptionHandler;
-import com.packtpub.java7.concurrency.chapter1.recipe8.task.Task;
 
 /**
  * Main class of the example. Initialize a Thread to process the uncaught
  * exceptions and starts a Task object that always throws an exception 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example. Initialize a Thread to process the 
@@ -13326,16 +12856,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe06/src/com/packtpub/java7/concurrency/chapter1/recipe6/task/DataSourcesLoader.java
-package com.packtpub.java7.concurrency.chapter1.recipe6.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class that simulates an initialization operation. It sleeps during four seconds
  *
  */
-public class DataSourcesLoader implements Runnable {
+public static class DataSourcesLoader implements Runnable {
 
 
 	/**
@@ -13359,16 +12886,13 @@ public class DataSourcesLoader implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe06/src/com/packtpub/java7/concurrency/chapter1/recipe6/task/NetworkConnectionsLoader.java
-package com.packtpub.java7.concurrency.chapter1.recipe6.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class that simulates an initialization operation. It sleeps during six seconds 
  *
  */
-public class NetworkConnectionsLoader implements Runnable {
+public static class NetworkConnectionsLoader implements Runnable {
 
 
 	/**
@@ -13391,19 +12915,15 @@ public class NetworkConnectionsLoader implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe06/src/com/packtpub/java7/concurrency/chapter1/recipe6/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe6.core;
 
-import java.util.Date;
 
-import com.packtpub.java7.concurrency.chapter1.recipe6.task.DataSourcesLoader;
-import com.packtpub.java7.concurrency.chapter1.recipe6.task.NetworkConnectionsLoader;
 
 /**
  * Main class of the Example. Create and start two initialization tasks
  * and wait for their finish
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the class. Create and star two initialization tasks
@@ -13437,12 +12957,11 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe01/src/com/packtpub/java7/concurrency/chapter1/recipe1/task/Calculator.java
-package com.packtpub.java7.concurrency.chapter1.recipe1.task;
 
 /**
  *  This class prints the multiplication table of a number
  */
-public class Calculator implements Runnable {
+public static class Calculator implements Runnable {
 
 	/**
 	 *  The number
@@ -13471,14 +12990,12 @@ public class Calculator implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe01/src/com/packtpub/java7/concurrency/chapter1/recipe1/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe1.core;
 
-import com.packtpub.java7.concurrency.chapter1.recipe1.task.Calculator;
 
 /**
  *  Main class of the example
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example
@@ -13497,13 +13014,12 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe10/src/com/packtpub/java7/concurrency/chapter1/recipe10/task/Result.java
-package com.packtpub.java7.concurrency.chapter1.recipe10.task;
 
 /**
  * Class that stores the result of the search
  *
  */
-public class Result {
+public static class Result {
 	
 	/**
 	 * Name of the Thread that finish
@@ -13530,17 +13046,13 @@ public class Result {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe10/src/com/packtpub/java7/concurrency/chapter1/recipe10/task/SearchTask.java
-package com.packtpub.java7.concurrency.chapter1.recipe10.task;
 
-import java.util.Date;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class that simulates a search operation
  *
  */
-public class SearchTask implements Runnable {
+public static class SearchTask implements Runnable {
 
 	/**
 	 * Store the name of the Thread if this Thread finish and is not interrupted
@@ -13584,14 +13096,10 @@ public class SearchTask implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe10/src/com/packtpub/java7/concurrency/chapter1/recipe10/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe10.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe10.task.Result;
-import com.packtpub.java7.concurrency.chapter1.recipe10.task.SearchTask;
 
-public class Main {
+public static class Main {
 
 	/**
 	 * Main class of the example
@@ -13653,12 +13161,11 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe03/src/com/packtpub/java7/concurrency/chapter1/recipe3/task/PrimeGenerator.java
-package com.packtpub.java7.concurrency.chapter1.recipe3.task;
 
 /**
  *  This class generates prime numbers until is interrumped
  */
-public class PrimeGenerator extends Thread{
+public static class PrimeGenerator extends Thread{
 
 	/**
 	 *  Central method of the class
@@ -13703,17 +13210,14 @@ public class PrimeGenerator extends Thread{
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe03/src/com/packtpub/java7/concurrency/chapter1/recipe3/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe3.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe3.task.PrimeGenerator;
 
 /**
  *  Main class of the sample. Launch the PrimeGenerator, waits 
  *  five seconds and interrupts the Thread
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the sample. Launch the PrimeGenerator, waits
@@ -13741,16 +13245,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe05/src/com/packtpub/java7/concurrency/chapter1/recipe5/task/FileClock.java
-package com.packtpub.java7.concurrency.chapter1.recipe5.task;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class that writes the actual date to a file every second
  * 
  */
-public class FileClock implements Runnable {
+public static class FileClock implements Runnable {
 
 	/**
 	 * Main method of the class
@@ -13771,11 +13272,8 @@ public class FileClock implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe05/src/com/packtpub/java7/concurrency/chapter1/recipe5/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe5.core;
 
-import java.util.concurrent.TimeUnit;
 
-import com.packtpub.java7.concurrency.chapter1.recipe5.task.FileClock;
 
 /**
  * Main class of the Example. Creates a FileClock runnable object
@@ -13783,7 +13281,7 @@ import com.packtpub.java7.concurrency.chapter1.recipe5.task.FileClock;
  * and interrupts it. 
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * @param args
@@ -13809,15 +13307,13 @@ public class Main {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe11/src/com/packtpub/java7/concurrency/chapter1/recipe11/task/Task.java
-package com.packtpub.java7.concurrency.chapter1.recipe11.task;
 
-import java.util.Random;
 
 /**
  * Class that implements the concurrent task
  *
  */
-public class Task implements Runnable {
+public static class Task implements Runnable {
 
 	@Override
 	public void run() {
@@ -13839,14 +13335,13 @@ public class Task implements Runnable {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe11/src/com/packtpub/java7/concurrency/chapter1/recipe11/group/MyThreadGroup.java
-package com.packtpub.java7.concurrency.chapter1.recipe11.group;
 
 /**
  * Class that extends the ThreadGroup class to implement
  * a uncaught exceptions method 
  *
  */
-public class MyThreadGroup extends ThreadGroup {
+public static class MyThreadGroup extends ThreadGroup {
 
 	/**
 	 * Constructor of the class. Calls the parent class constructor
@@ -13874,16 +13369,13 @@ public class MyThreadGroup extends ThreadGroup {
 
 //=*=*=*=*
 //./Chapter_1/ch1_recipe11/src/com/packtpub/java7/concurrency/chapter1/recipe11/core/Main.java
-package com.packtpub.java7.concurrency.chapter1.recipe11.core;
 
-import com.packtpub.java7.concurrency.chapter1.recipe11.group.MyThreadGroup;
-import com.packtpub.java7.concurrency.chapter1.recipe11.task.Task;
 
 /**
  * Main class of the example
  *
  */
-public class Main {
+public static class Main {
 
 	/**
 	 * Main method of the example. Creates a group of threads of
